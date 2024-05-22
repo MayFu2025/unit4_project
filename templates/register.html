@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>[PLATFORM] Register</title>
+</head>
+
+<body>
+    <h1>Welcome to PLATFORM</h1>
+    <h2>Create a New Account to Continue</h2>
+    <form method="post">
+            <label for="username">Create a New Username:</label>
+            <input type="text" name="username" id="uname" required>
+            <br>
+
+            <label for="email">Enter Your Email:</label>
+            <input type="email" name="email" id="email" required>
+            <br>
+
+            <label for="password">Create New Password:</label>
+            <input type="password" name="password" id="pword" required>
+            <br>
+
+            <label for="check_password">Re-enter New Password:</label>
+            <input type="password" name="check_password" id="check_pword" required>
+            <br>
+
+            <input type="submit" value="Register">
+        </form>
+        <p>Already have an account? <a href="/login">Log-in</a></p>  <!--I'm assuming I have to use flask redirect/url for and I cannot just redirect-->
+</body>
+
+</html>

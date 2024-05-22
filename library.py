@@ -2,7 +2,7 @@ import sqlite3
 from passlib.hash import sha256_crypt
 
 
-class dblib:  # For working with SQLlite database
+class DatabaseWorker:  # For working with SQLlite database
     def __init__(self, name: str):
         self.name_db = name
 
