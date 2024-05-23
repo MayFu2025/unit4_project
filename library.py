@@ -38,8 +38,12 @@ class DatabaseWorker:  # For working with SQLlite database
 
 
 # Functions for hashing/verification
+hasher = sha256_crypt.using(rounds=30000)
+
 def make_hash(text: str) -> str:
-    return sha256_crypt.using(rounds=30000)(text)
+    return hasher.hash(text)
 
 def check_hash_match(text: str, hashed: str) -> bool:
-    return sha256_crypt.using(rounds=30000).verify(text, hashed)
+    return hasher.verify(text, hashed)
+
+print(make_hash('test'))

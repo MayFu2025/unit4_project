@@ -1,9 +1,10 @@
 import flask as fl
-from flask import request, session, redirect, url_for, render_template
+from flask import request, session, redirect, url_for, render_template, make_response
 from library import DatabaseWorker, make_hash, check_hash_match
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
+app.secret_key = 'aslkcjfahroeuhnaczlfewhagakdjsfhaljasgakjhjoiaufecanmakweoiqwepsadfqf'
 
 
 # For Login and Register
@@ -16,23 +17,29 @@ def login():
     if request.method == 'POST':
         uname = request.form.get('uname')
         pword = request.form.get('pword')
+        print(uname, pword)
         # Check database for user, then compare hash
         results = db.search(f"SELECT * FROM users WHERE uname = '{uname}'", multiple=False)
-        if len(results) != 1:
+        print(results)
+        if results is None:
+            print('User not found')
             return 'User not Found'  # User not found, redirect to somewhere
         else:
             if check_hash_match(pword, results[3]):
                 session['user_id'] = results[0]
+                print('Log-in Successful')
                 return redirect(url_for('home'))
             else:
+                print('Incorrect Password')
                 return 'Incorrect Password'  # Incorrect password redirect to somewhere
-
     return render_template('login.html')
 
 
 @app.route('/logout')  # No screen just delete session and redirect to login
 def logout():
-    return 'Login Page'
+    session.pop('user_id', None)
+    # response = make_response(redirect(url_for('login_page')))
+    return redirect(url_for('login'))
 
 
 @app.route('/register', methods=['GET', 'POST'])  # Register screen
@@ -48,21 +55,22 @@ def register():
         check_pword = request.form.get('check_pword')
 
         # Check database for existing users
-        results = db.search(f"SELECT * FROM users WHERE uname = '{uname}' or email = '{email}'", multiple=False)
-        if results is not None:
-            if len(results) != 0:
-                print('Username already taken, or email already in use')
-                return 'Username already taken, or email already in use'  # Redirect to somewhere
-            else:  # Check that passwords match
-                if pword != check_pword:
-                    print('Passwords do not match')
-                    return 'Passwords do not match'
-                else:
-                    # Hash password and insert into database
-                    hashed_pword = make_hash(pword)
-                    db.run_query(f"INSERT INTO users (uname, email, pword) VALUES ('{uname}', '{email}', '{hashed_pword}')")
-                    print('New user created')
-                    return redirect(url_for('login'))
+        results = db.search(f"SELECT * FROM users WHERE uname = '{uname}' or email = '{email}'", multiple=True)
+        print(results)
+        if len(results) != 0:
+            print('Username already taken, or email already in use')
+            return 'Username already taken, or email already in use'  # Redirect to somewhere
+        else:  # Check that passwords match
+            if pword != check_pword:
+                print('Passwords do not match')
+                return 'Passwords do not match'
+            else:
+                # Hash password and insert into database
+                hashed_pword = make_hash(pword)
+                db.run_query(
+                    f"INSERT INTO users (uname, email, password) VALUES ('{uname}', '{email}', '{hashed_pword}')")
+                print('New user created')
+                return redirect(url_for('login'))
     return render_template('register.html')
 
 
@@ -74,7 +82,18 @@ def recover():
 # User specific pages
 @app.route('/')  # If session exists, redirect to home screen
 def home():
-    return 'Home Screen'
+    # Check if the user is logged in, if so, retrieve name, profile picture, saved categories, and saved posts
+    if 'user_id' in session:
+        user_id = session['user_id']
+        user = db.search(f"SELECT uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
+        if user[1] is None:
+            name = user[0]
+        else:
+            name = user[1]
+    else:  # If not logged in, redirect to log in
+        return redirect(url_for('login'))
+
+    return render_template('home.html', name=name, following=user[3])
 
 
 @app.route('/profile')  # If session exists, show to profile screen, else redirect to login
@@ -99,7 +118,7 @@ def new_category():
 
 
 @app.route('/categories/<int:cat_id>')  # Show all posts in a category
-def category(cat_id):
+def get_category(cat_id):
     return 'Category Page'
 
 

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>[PLATFORM] Home</title>
+</head>
+<body>
+    <h1>Welcome to PLATFORM, {{ name }}!</h1>
+    <div> <!--Sidebar Menu with each category that the user follows-->
+        {% if following == None%}
+            <p>Follow some categories to get started!</p>
+        {% else %}
+            {% for cat in following %}
+                <a href="{{url_for('get_category', cat_id=cat)}}">{{ cat }}</a>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div> <!--Main Content of Page-->
+        <h2>Explore</h2>
+        <div> <!--List of recommended articles-->
+            <div> <!--Group of buttons that redirect-->
+                <button>View All</button>
+                <label>
+                    <input type="search">
+                </label>
+            </div>
+            </div>
+        </div>
+</body>
+</html>
