@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>[PLATFORM] Profile</title>
+</head>
+<body>
+    <div> <!-- Profile Section -->
+        <h1>Profile</h1>
+        <p>Username: {{ username }}</p> <button>Edit</button>
+        <p>Name: {{ name }}</p> <button>Edit</button>
+        <p>Email: {{ email }}</p> <button>Edit</button>
+    </div>
+    <div> <!-- Following Categories/Posts Section -->
+        <h1>Following and Saved</h1>
+        <h2>Following Categories</h2>
+        { % for category in saved_cat %}
+            <a href='{{ url_for('get_category', cat_id=cat.id)}}'>{{ category }}</a> <button>Unfollow</button>
+        { % endfor %}
+</body>
+</html>

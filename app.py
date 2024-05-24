@@ -86,19 +86,44 @@ def home():
     if 'user_id' in session:
         user_id = session['user_id']
         user = db.search(f"SELECT uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
+        # Find name
         if user[1] is None:
             name = user[0]
         else:
             name = user[1]
+        # Find following categories to show on sidebar
+        if user[3] is None:
+            following = []
+        else:
+            following = map(int, user[3].split(','))
     else:  # If not logged in, redirect to log in
         return redirect(url_for('login'))
-
-    return render_template('home.html', name=name, following=user[3])
+    return render_template('home.html', name=name, following=following)
 
 
 @app.route('/profile')  # If session exists, show to profile screen, else redirect to login
 def profile():
-    return 'Profile Page'
+    # Check if the user is logged in, if so, retrieve name, email, profile picture, saved categories, and saved posts
+    if request.method == 'GET':
+        if 'user_id' in session:
+            user_id = session['user_id']
+            user = db.search(f"SELECT uname, email, name, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
+            # Find name
+            if user[2] is None: name = 'No name set'
+            else: name = user[2]
+            # Find email
+            email = user[1]
+            # Find profile picture
+            pfp = user[3]
+            # Find saved categories
+            if user[4] is None: saved_cats = []
+            else: saved_cats = map(int, user[4].split(','))
+            # Find saved posts
+            if user[5] is None:
+                saved_posts = []
+            else:
+                saved_posts = map(int, user[5].split(','))
+    return render_template('profile.html', username=user[0], email=email, name=name, pfp=pfp, saved_cats=saved_cats, saved_posts=saved_posts)
 
 
 @app.route('/profile/edit')  # If session exists, show to profile screen, else redirect to login

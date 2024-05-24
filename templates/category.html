@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>[PLATFORM] {{ cat_name }}</title>
+</head>
+<body>
+    <div> <!--Category Header-->
+        <img src="{{ cat_image }}" alt="{{ cat_name }} image">
+        <h1>{{ cat_name }}</h1>
+        <h3>{{ cat_description }}</h3>
+    </div>
+    <div>
+        <ul>
+        {% for post in category_posts %}
+            <div>
+
+            </div>
+        {% endfor %}
+    </ul>
+    </div>
+
+</body>
+</html>
