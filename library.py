@@ -46,4 +46,16 @@ def make_hash(text: str) -> str:
 def check_hash_match(text: str, hashed: str) -> bool:
     return hasher.verify(text, hashed)
 
-print(make_hash('test'))
+def retrieve_list(choice:str, db:object, user_id):
+    choices = {'c': 'saved_cats',
+               'p': 'saved_posts',
+               'u': 'following_u'}
+    if choice in choices:
+        result = db.search(f"SELECT {choices.get(choice)} FROM users WHERE id = {user_id}", multiple=False)[0]
+        if result is None:
+            saved = []
+        else:
+            saved = map(int, result.split(','))
+    else:
+        saved = "Error: Invalid parameter"
+    return saved

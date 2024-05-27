@@ -5,23 +5,29 @@
     <title>[PLATFORM] Home</title>
 </head>
 <body>
-    <h1>Welcome to PLATFORM, {{ name }}!</h1>
-
     <div> <!--Sidebar Menu with each category that the user follows-->
+        <h3>Your Following Categories:</h3>
         {% for cat in following %}
             <a href="{{url_for('get_category', cat_id=cat)}}">{{ cat }}</a>
         {% endfor %}
+
+        <div> <!--After the fade out, permanently anchored to bottom-->
+            <a href="{{ url_for('get_profile', user_id=user_id) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
     </div>
 
     <div> <!--Main Content of Page-->
+        <h1>Welcome to PLATFORM, {{ name }}!</h1>
         <div> <!--Search Bar-->
                 <form>
                     <input type="search" name="search">
                     <input type="submit" value="Search">
                 </form>
         </div>
+
         <div> <!--List of Posts-->
-            <h2>Following Categories</h2>
+            <h2>Latest Posts</h2>
             {% for post in followedcategories %}
                 <div> <!--Post Preview-->
                     <div> <!--Post Image-->
