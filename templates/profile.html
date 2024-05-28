@@ -17,9 +17,9 @@
 
         <div> <!-- Following Categories -->
             <h2>Following Categories</h2>
-            {% for category in saved_cats %}
+            {% for category in categories[0] %}
             <div> <!-- Make the background for each category card the category photo -->
-                <a href='{{ url_for('get_category', cat_id=category)}}'><h3>{{ category }}</h3></a>
+                <a href='{{ url_for('get_category', cat_id=category)}}'><h3>{{ categories[1][loop.index0] }}</h3></a>
                 <button>Unfollow</button> <!-- Unfollow button to be anchored to right -->
             </div>
             {% endfor %}
@@ -31,6 +31,16 @@
             <div>
                 <a href='{{ url_for('get_post', post_id=post)}}'><h3>{{ post }}</h3></a>
                 <button>Unsave</button> <!-- Unsave button to be anchored to right -->
+            </div>
+            {% endfor %}
+        </div>
+    
+        <div>
+            <h2>Following Users</h2>
+            {% for user in following_u %}
+            <div class="profile_card">
+                <img src="{{ user }}" alt="profile picture of {{ user_id }}">
+                <a href='{{ url_for('get_profile', user_id=user)}}'><h3>{{ user }}</h3></a> <!-- Need to retrieve name shit-->
             </div>
             {% endfor %}
         </div>

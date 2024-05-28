@@ -1,9 +1,13 @@
-{% extends "home.html", "post.html" %}
-{% block title %}[PLATFORM] Navigation Bar{% endblock %}
+{% block sidebar %}
 
-{% block css %}{% endblock %}
+<h3>Your Following Categories:</h3>
+{% for cat_id in categories[0] %}
+    <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.index0] }}</a>
+{% endfor %}
 
-
-{% blockcontent %}
+<div> <!--After the fade out, permanently anchored to bottom-->
+    <a href="{{ url_for('get_profile', user_id=user[0]) }}">Profile</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
 
 {% endblock %}

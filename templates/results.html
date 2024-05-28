@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>[PLATFORM] Search Results for {{ search_query }}</title>
+</head>
+<body>
+    <div id="sidebar"> <!-- Want to avoid repetition but it ain't really working is it -->
+        <h3>Your Following Categories:</h3>
+        {% for cat_id in categories[0] %}
+            <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.index0] }}</a>
+        {% endfor %}
+        <div> <!--After the fade out, permanently anchored to bottom-->
+            <a href="{{ url_for('get_profile', user_id=user[0]) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div> <!--Main Content of Page-->
+        <h1>Showing {{ results | count }} posts that match "{{ keyword }}"</h1>
+
+
+</body>
+</html>

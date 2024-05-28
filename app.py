@@ -1,10 +1,16 @@
 import flask as fl
 from flask import request, session, redirect, url_for, render_template, make_response
-from library import DatabaseWorker, make_hash, check_hash_match, retrieve_list, get_all_posts
+from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, check_session
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
 app.secret_key = 'aslkcjfahroeuhnaczlfewhagakdjsfhaljasgakjhjoiaufecanmakweoiqwepsadfqf'
+
+# if check_session(session) is not None:
+#     user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
+#     categories = retrieve_following('categories', db, session['user_id'])
+#     posts = retrieve_following('posts', db, session['user_id'])
+#     users = retrieve_following('users', db, session['user_id'])
 
 
 # For Login and Register
@@ -85,35 +91,59 @@ def home():
     # Check if the user is logged in, if so, retrieve name, profile picture, saved categories, and saved posts
     if 'user_id' in session:
         user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
+
+        if request.method == 'GET':
+            print(get_all_posts(db, retrieve_following('categories', db, session['user_id'])[0]))
+            return render_template('home.html', user=user, categories=retrieve_following('categories', db, session['user_id']),
+                                   posts=get_all_posts(db, retrieve_following('categories', db, session['user_id'])[0]))
+
+        elif request.method == 'POST':
+            keyword = request.form.get('search')
+            print(keyword)
+            results = search_all_posts(db, keyword)
+            return redirect(url_for('search', user=user, categories=retrieve_following('categories', db, session['user_id']),
+                                   keyword=keyword, results=results))
+
     else:  # If not logged in, redirect to log in
         return redirect(url_for('login'))
 
-    print(get_all_posts(db, retrieve_list('c', db, session['user_id'])[0]))
-    return render_template('home.html', user=user, categories=retrieve_list('c', db, session['user_id']), posts=get_all_posts(db, retrieve_list('c', db, session['user_id'])[0]))
 
+@app.route('/?search=<string:keyword>')  # Search for keyword in posts
+def search(user, categories, keyword, results):
+    return render_template('results.html', user=user, categories=categories, keyword=keyword, results=results)
 
 @app.route('/profile/<int:user_id>')  # If session exists, show to profile screen, else redirect to login
 def get_profile(user_id):
     # Check if the user is logged in, if so, retrieve name, email, profile picture, saved categories, and saved posts
-    if request.method == 'GET':
-        if 'user_id' not in session:
-            return redirect(url_for('login'))
-        else:
-            if user_id == session['user_id']:  # The user is requesting to see their own profile
-                user = db.search(f"SELECT * FROM users WHERE id = {user_id}", multiple=False)
-                # Find name
-                if user[3] is None: name = 'No name set'
-                else: name = user[3]
-                # Find saved categories
-                saved_cats = retrieve_list('c', db, user_id)
-                # Find saved posts
-                saved_posts = retrieve_list('p', db, user_id)
-                # Find following users
-                following_u = retrieve_list('u', db, user_id)
-                return render_template('profile.html', user_id=user[0], username=user[1], email=user[2], name=user[4], pfp=user[5], saved_cats=saved_cats, saved_posts=saved_posts, following_u=following_u)
-            else:  # The user is requesting to see another user's profile
-                user = db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False)
-                return render_template('profile.html', user_id=user[0], username=user[1], pfp=user[2])
+    if user_id == check_session(session):
+        user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
+    categories = retrieve_following('categories', db, user_id)
+    posts = get_all_posts(db, choice='posts', ids=retrieve_following('posts', db, user_id)[0])
+    query = "SELECT id, uname, pfp FROM users WHERE "
+    for id in retrieve_following('users', db, user_id):
+        query += f"id = {id} OR "
+        query = query[:-4]
+    users = db.search(query, multiple=True)
+    print(users)
+
+    return render_template("profile.html", user=user, categories=retrieve_following('categories', db, user_id))
+
+
+    # else:
+    #
+    #         if user_id == session['user_id']:  # The user is requesting to see their own profile
+    #             user = db.search(f"SELECT * FROM users WHERE id = {u_id}", multiple=False)
+    #             print(user)
+    #             # Find saved categories
+    #             saved_cats = retrieve_following('categories', db, user_id)
+    #             # Find saved posts
+    #             saved_posts = retrieve_following('posts', db, user_id)
+    #             # Find following users
+    #             following_u = retrieve_following('users', db, user_id)
+    #             return render_template('profile.html', user_id=user[0], details=user, saved_cats=saved_cats,saved_posts=saved_posts, following_u=following_u)
+    #         else:  # The user is requesting to see another user's profile
+    #             user = db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False)
+    #             return render_template('profile.html', user_id=user[0], details=user)
 
 @app.route('/profile/<int:user_id>/edit')  # If session exists, show to profile screen, else redirect to login
 def edit_profile():
@@ -133,7 +163,9 @@ def new_category():
 
 @app.route('/categories/<int:cat_id>')  # Show all posts in a category
 def get_category(cat_id):
-    return 'Category Page'
+    user_id = check_session(session)
+    details = db.search(f"SELECT * FROM categories WHERE id={cat_id}", False)
+    return render_template('category.html', user_id=user_id, categories=retrieve_following('categories', db, session['user_id']), details=details, posts=get_all_posts(db, choice="categories", ids=[cat_id]))
 
 
 @app.route('/post/<int:post_id>')  # Show a post and all comments, form to add a new comment
