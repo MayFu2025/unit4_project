@@ -65,7 +65,7 @@ def retrieve_following(choice: str, db: object, user_id:int):
             ids = list(map(int, result.split(',')))
             names = []
             for id in ids:
-                print(db.search(f"SELECT {choices[choice][1]} FROM {choice} WHERE id = {choice +'.id'}", multiple=False)[0])
+                # print(db.search(f"SELECT {choices[choice][1]} FROM {choice} WHERE id = {id}", multiple=False)[0])
                 names.append(db.search(f"SELECT {choices[choice][1]} FROM {choice} WHERE id = {choice +'.id'}", multiple=False)[0])
     else:
         return "Invalid Choice"
@@ -81,8 +81,8 @@ def get_all_posts(db: object, choice:str, ids: list[int]):
     for id in ids:
         query += f"{choices[choice]} = " + str(id) + " OR "
     query = query[:-3] + "ORDER BY date DESC" # Remove the last space and OR then sorts by date
-    print(query)
-    print(db.search(query, multiple=True))
+    # print(query)
+    # print(db.search(query, multiple=True))
     return db.search(query, multiple=True)
 
 

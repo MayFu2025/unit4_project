@@ -93,13 +93,13 @@ def home():
         user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
 
         if request.method == 'GET':
-            print(get_all_posts(db, retrieve_following('categories', db, session['user_id'])[0]))
+            # print(get_all_posts(db=db, choice='categories', ids=retrieve_following('categories', db, session['user_id'])[0]))
             return render_template('home.html', user=user, categories=retrieve_following('categories', db, session['user_id']),
-                                   posts=get_all_posts(db, retrieve_following('categories', db, session['user_id'])[0]))
+                                   posts=get_all_posts(db, 'categories', retrieve_following('categories', db, session['user_id'])[0]))
 
-        elif request.method == 'POST':
+        elif request.method == 'POST':  #TODO: not working but also not priority :D
             keyword = request.form.get('search')
-            print(keyword)
+            # print(keyword)
             results = search_all_posts(db, keyword)
             return redirect(url_for('search', user=user, categories=retrieve_following('categories', db, session['user_id']),
                                    keyword=keyword, results=results))
@@ -117,16 +117,23 @@ def get_profile(user_id):
     # Check if the user is logged in, if so, retrieve name, email, profile picture, saved categories, and saved posts
     if user_id == check_session(session):
         user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
-    categories = retrieve_following('categories', db, user_id)
-    posts = get_all_posts(db, choice='posts', ids=retrieve_following('posts', db, user_id)[0])
-    query = "SELECT id, uname, pfp FROM users WHERE "
-    for id in retrieve_following('users', db, user_id):
-        query += f"id = {id} OR "
+        categories = retrieve_following('categories', db, user_id)
+        posts = get_all_posts(db, choice='posts', ids=retrieve_following('posts', db, user_id)[0])
+        query = "SELECT id, uname, pfp FROM users WHERE "
+        for id in retrieve_following('users', db, user_id)[0]:
+            query += f"id = {id} OR "
         query = query[:-4]
-    users = db.search(query, multiple=True)
-    print(users)
+        users = db.search(query, multiple=True)
+        return render_template("profile.html", self=True, user=user,
+                               categories=retrieve_following('categories', db, user_id), posts=posts, users=users)
+    elif check_session(session) == None: # User is not logged in
+        return redirect(url_for('login'))
+    else: # User is requesting to see another user's profile
 
-    return render_template("profile.html", user=user, categories=retrieve_following('categories', db, user_id))
+        return render_template('profile.html', self=False, user=db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False))
+
+
+
 
 
     # else:

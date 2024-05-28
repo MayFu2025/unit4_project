@@ -5,13 +5,24 @@
     <title>[PLATFORM] {{ username }}'s Profile</title>
 </head>
 <body>
+    {% if not self %}
+
+    {% endif %}
+
+    {% if self %}
     <div> <!-- Profile Section -->
         <h1>Profile</h1>
-        <img src="{{ pfp }}" alt="Profile Picture"> <button>Edit</button>
-        <p>Username: {{ username }}</p> <button>Edit</button>
-        <p>Name: {{ name }}</p> <button>Edit</button>
-        <p>Email: {{ email }}</p> <button>Edit</button>
+        <div> <!-- Image on the right -->
+            <img src="{{ pfp }}" alt="Profile Picture">
+        </div>
+        <div> <!-- Profile Info on the left -->
+            <p>Username: {{ username }}
+            <p>Name: {{ name }}</p>
+            <p>Email: {{ email }}</p>
+            <button>Edit</button>
+        </div>
     </div>
+
     <div> <!-- Following Categories/Posts Section -->
         <h1>Following and Saved</h1>
 
@@ -27,23 +38,29 @@
 
         <div>
             <h2>Saved Posts</h2>
-            {% for post in saved_posts %}
-            <div>
-                <a href='{{ url_for('get_post', post_id=post)}}'><h3>{{ post }}</h3></a>
-                <button>Unsave</button> <!-- Unsave button to be anchored to right -->
-            </div>
+            {% for post in posts %}
+                <div id="post_prev"> <!--Post Preview-->
+                    <div id="post_image"> <!--Post Image-->
+                        <img src="{{ post.image }}" alt="Post Image">
+                    </div>
+                    <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[4] }}</h3></a><!--Post Title-->
+                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                    <p>{{ post[2] }} saves and {{ post[3] }} comments</p>
+                </div>
             {% endfor %}
         </div>
     
         <div>
             <h2>Following Users</h2>
-            {% for user in following_u %}
+            {% for user in users %}
             <div class="profile_card">
-                <img src="{{ user }}" alt="profile picture of {{ user_id }}">
-                <a href='{{ url_for('get_profile', user_id=user)}}'><h3>{{ user }}</h3></a> <!-- Need to retrieve name shit-->
+                <img src="{{ user[2] }}" alt="profile picture of {{ user[1] }}">
+                <a href='{{ url_for('get_profile', user_id=user[0])}}'><h3>{{ user[1] }}</h3></a> <!-- Need to retrieve name shit-->
             </div>
             {% endfor %}
         </div>
-
+    </div>
+    {% endif %}
 </body>
 </html>
