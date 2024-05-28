@@ -33,7 +33,7 @@
             <h2>Latest Posts from your Following Categories</h2>
             {% for post in posts %}
                 <div id="post_prev"> <!--Post Preview-->
-                    <div id="post_image"> <!--Post Image-->
+                    <div id="post_image"> <!--Post Image TODO: change later with if statement so if not none -->
                         <img src="{{ post.image }}" alt="Post Image">
                     </div>
                     <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
