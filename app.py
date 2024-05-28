@@ -114,26 +114,30 @@ def search(user, categories, keyword, results):
 
 @app.route('/profile/<int:user_id>')  # If session exists, show to profile screen, else redirect to login
 def get_profile(user_id):
-    # Check if the user is logged in, if so, retrieve name, email, profile picture, saved categories, and saved posts
-    if user_id == check_session(session):
-        print("Yes this is correct")
-        user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
-        categories = retrieve_following('categories', db, user_id)
-        posts = get_all_posts(db, choice='posts', ids=retrieve_following('posts', db, user_id)[0])
-        query = "SELECT id, uname, pfp FROM users WHERE "
-        for id in retrieve_following('users', db, user_id)[0]:
-            query += f"id = {id} OR "
-        query = query[:-4]
-        users = db.search(query, multiple=True)
-        return render_template("profile.html", is_self=True, user_id=session['user_id'], categories=categories, user=user, following_u=users, saved_posts=posts, posts=get_all_posts(db, 'users', [user[0]]))
+    if 'user_id' in session:
+        if user_id == session['user_id']:
+            user = db.search(f"SELECT id, uname, name, email, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
+            categories = retrieve_following('categories', db, user_id)
+            posts = get_all_posts(db, choice='posts', ids=retrieve_following('posts', db, user_id)[0])
 
-    elif check_session(session) == None: # User is not logged in
+            if len(retrieve_following('users', db, user_id)[0]) == 0:
+                users = []
+            else:
+                query = "SELECT id, uname, pfp FROM users WHERE "
+                for id in retrieve_following('users', db, user_id)[0]:
+                    query += f"id = {id} OR "
+                query = query[:-4]
+                users = db.search(query, multiple=True)
+            # print(retrieve_following('users', db, user_id)[0])
+            # print(users)
+            return render_template("profile.html", is_self=True, user_id=session['user_id'], categories=categories, user=user, following_u=users, saved_posts=posts, posts=get_all_posts(db, 'users', [user[0]]))
+
+        else: # User is requesting to see another user's profile
+            categories = retrieve_following('categories', db, session['user_id'])  # Find saved categories for Navbar
+            # print(categories)
+            return render_template('profile.html', is_self=False, user_id=session['user_id'], categories=categories, user=db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False), posts=get_all_posts(db, 'users', [user_id]))
+    else:
         return redirect(url_for('login'))
-
-    else: # User is requesting to see another user's profile
-        categories = retrieve_following('categories', db, user_id)
-        return render_template('profile.html', is_self=False, user_id=session['user_id'], categories=categories, user=db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False), posts=get_all_posts(db, 'users', [user_id]))
-
 
 
 

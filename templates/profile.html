@@ -22,28 +22,28 @@
 
     {% if is_self != True %}
     <div> <!-- Profile Section -->
-        <h1>Profile</h1>
+        <h1>{{ user[1] }}'s Profile</h1>
         <div> <!-- Image on the right -->
             <img src="{{ user[2] }}" alt="Profile Picture">
             <h2>{{ user[1] }}</h2>
             {% if user[0] in following_u %}
-                <button>Follow</button>
+                <button>Follow</button> <!--TODO: Make this button actually do something-->
             {% else %}
-                <button>Unfollow</button>
+                <button>Unfollow</button> <!--TODO: Make this button actually do something-->
             {% endif %}
         </div>
 
     {% else %}
     <div> <!-- Profile Section -->
-        <h1>Profile</h1>
+        <h1>My Profile</h1>
         <div> <!-- Image on the right -->
-            <img src="{{ pfp }}" alt="Profile Picture">
+            <img src="{{ user[4] }}" alt="Profile Picture">
         </div>
         <div> <!-- Profile Info on the left -->
-            <p>Username: {{ username }}
-            <p>Name: {{ name }}</p>
-            <p>Email: {{ email }}</p>
-            <button>Edit</button>
+            <p>Username: {{ user[1] }}
+            <p>Name: {{ user[2] }}</p>
+            <p>Email: {{ user[3] }}</p>
+            <button>Edit</button> <!--TODO: Make this button actually do something-->
         </div>
     </div>
 
@@ -55,7 +55,7 @@
             {% for category in categories[0] %}
             <div> <!-- Make the background for each category card the category photo -->
                 <a href='{{ url_for('get_category', cat_id=category)}}'><h3>{{ categories[1][loop.index0] }}</h3></a>
-                <button>Unfollow</button> <!-- Unfollow button to be anchored to right -->
+                <button>Unfollow</button> <!-- Unfollow button to be anchored to right --> <!--TODO: Make this button actually do something-->
             </div>
             {% endfor %}
         </div>
@@ -65,7 +65,7 @@
             {% for post in saved_posts %}
                 <div id="post_prev"> <!--Post Preview-->
                     <div id="post_image"> <!--Post Image-->
-                        <img src="{{ post.image }}" alt="Post Image">
+                        <img src="{{ post.image }}" alt="Post Image"> <!--TODO: All images TT-->
                     </div>
                     <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
                      <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[4] }}</h3></a><!--Post Title-->
@@ -80,7 +80,7 @@
             {% for user in following_u %}
             <div class="profile_card">
                 <img src="{{ user[2] }}" alt="profile picture of {{ user[1] }}">
-                <a href='{{ url_for('get_profile', user_id=user[0])}}'><h3>{{ user[1] }}</h3></a> <!-- Need to retrieve name shit-->
+                <a href='{{ url_for('get_profile', user_id=user[0])}}'><h3>{{ user[1] }}</h3></a>
             </div>
             {% endfor %}
         </div>

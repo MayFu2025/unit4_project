@@ -1,6 +1,6 @@
 import sqlite3
 from passlib.hash import sha256_crypt
-from flask import redirect, url_for
+from flask import redirect, url_for, make_response
 
 
 class DatabaseWorker:  # For working with SQLlite database
@@ -66,7 +66,7 @@ def retrieve_following(choice: str, db: object, user_id:int):
             names = []
             for id in ids:
                 # print(db.search(f"SELECT {choices[choice][1]} FROM {choice} WHERE id = {id}", multiple=False)[0])
-                names.append(db.search(f"SELECT {choices[choice][1]} FROM {choice} WHERE id = {choice +'.id'}", multiple=False)[0])
+                names.append(db.search(f"SELECT {choices[choice][1]} FROM {choice} WHERE id = {id}", multiple=False)[0])
     else:
         return "Invalid Choice"
     return [ids, names]
@@ -74,16 +74,19 @@ def retrieve_following(choice: str, db: object, user_id:int):
 
 def get_all_posts(db: object, choice:str, ids: list[int]):
     """Returns all posts that belong to the requested categories given as a list of either category, post, or user ids, latest posts first"""
-    choices = {'categories': 'category_id',
-               'posts': 'posts.id',
-               'users': 'user_id'}
-    query = "SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, categories.id, categories.name, users.id, users.uname FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "
-    for id in ids:
-        query += f"{choices[choice]} = " + str(id) + " OR "
-    query = query[:-3] + "ORDER BY date DESC" # Remove the last space and OR then sorts by date
-    # print(query)
-    # print(db.search(query, multiple=True))
-    return db.search(query, multiple=True)
+    if len(ids) != 0:
+        choices = {'categories': 'category_id',
+                   'posts': 'posts.id',
+                   'users': 'user_id'}
+        query = "SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, categories.id, categories.name, users.id, users.uname FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "
+        for id in ids:
+            query += f"{choices[choice]} = " + str(id) + " OR "
+        query = query[:-3] + "ORDER BY date DESC" # Remove the last space and OR then sorts by date
+        print(query)
+        # print(db.search(query, multiple=True))
+        return db.search(query, multiple=True)
+    else:
+        return []
 
 
 def search_all_posts(db:object, keyword:str):
@@ -94,9 +97,9 @@ def search_all_posts(db:object, keyword:str):
                 SORT BY posts.saved_count DESC"""
     return db.search(query, multiple=True)
 
-def check_session(session)-> int:
+def check_session(session):
     """Checks if the user is logged in, returns user_id"""
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return make_response(url_for('login'))
     else:
         return session['user_id']
