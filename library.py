@@ -73,7 +73,7 @@ def retrieve_following(choice: str, db: object, user_id:int):
 
 
 def get_all_posts(db: object, choice:str, ids: list[int]):
-    """Returns all posts that belong to the requested categories given as a list of category ids, latest posts first"""
+    """Returns all posts that belong to the requested categories given as a list of either category, post, or user ids, latest posts first"""
     choices = {'categories': 'category_id',
                'posts': 'posts.id',
                'users': 'user_id'}
