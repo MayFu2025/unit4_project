@@ -1,10 +1,10 @@
-{% extends "home.html" %}
-
-{% block css %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-{% endblock %}
-
-{% block navbar %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>[PLATFORM] All Categories</title>
+</head>
+<body>
     <div id="navbar">
         <h2>Navigate:</h2>
         <a href="{{ url_for('home') }}">Home</a>
@@ -19,4 +19,16 @@
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>
     </div>
-{% endblock %}
+
+
+    <div id="categories">
+        <h1>All Categories</h1>
+        <h2>{{ None }} categories total, sorted alphabetically</h2>
+        <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
+        {% for cat_id in all_categories[0] %}
+            <div>
+                <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ all_categories[1][loop.index0] }}</a>
+            </div>
+        {% endfor %}
+</body>
+</html>

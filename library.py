@@ -103,3 +103,21 @@ def check_session(session):
         return make_response(url_for('login'))
     else:
         return session['user_id']
+
+
+def toggle_follow(db:object, choice:str, user_id:int, follow_id:int):
+    """Toggles the follow status of a user, post, or category and updates the database."""
+    choices = {'categories': 'saved_cats',
+               'posts': 'saved_posts',
+               'users': 'following_u'}
+    following = retrieve_following(choice, db, user_id)[0]
+    if len(following) == 0:
+        following=[follow_id]
+    else:
+        following = list(map(int, following.split(',')))
+        if follow_id in following:
+            following.remove(follow_id)
+        else:
+            following.append(follow_id)
+    db.run_query(f"UPDATE users SET {choices[choice]} = '{','.join(map(str, following))}' WHERE id = {user_id}")
+    return "Successfully Updated"

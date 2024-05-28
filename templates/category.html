@@ -29,7 +29,7 @@
         {% else %}
             <button>Follow</button>
         {% endif %}
-        <button>Create Post</button> <!--TODO: Link to create post page-->
+        <a href="{{ url_for("new_post", cat_id=details[0]) }}"><button>Create Post</button></a>
     </div>
     <div>
         <h2>Latest Posts from {{ details[1] }}</h2>
