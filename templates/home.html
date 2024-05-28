@@ -7,18 +7,18 @@
 <body>
     <div> <!--Sidebar Menu with each category that the user follows-->
         <h3>Your Following Categories:</h3>
-        {% for cat in following %}
-            <a href="{{url_for('get_category', cat_id=cat)}}">{{ cat }}</a>
+        {% for cat_id in categories[0] %}
+            <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.depth0] }}</a>
         {% endfor %}
 
         <div> <!--After the fade out, permanently anchored to bottom-->
-            <a href="{{ url_for('get_profile', user_id=user_id) }}">Profile</a>
+            <a href="{{ url_for('get_profile', user_id=user[0]) }}">Profile</a>
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>
     </div>
 
     <div> <!--Main Content of Page-->
-        <h1>Welcome to PLATFORM, {{ name }}!</h1>
+        <h1>Welcome to PLATFORM, {% if user[1] %} {{ user[1] }} {%else%} {{ user[0] }} {%endif%}!</h1>
         <div> <!--Search Bar-->
                 <form>
                     <input type="search" name="search">

@@ -84,16 +84,10 @@ def recover():
 def home():
     # Check if the user is logged in, if so, retrieve name, profile picture, saved categories, and saved posts
     if 'user_id' in session:
-        user = db.search(f"SELECT uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
-        # Find name
-        if user[1] is None: name = user[0]
-        else: name = user[1]
-        # Find following categories to show on sidebar
-        if user[3] is None: following = []
-        else: following = map(int, user[3].split(','))
+        user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
     else:  # If not logged in, redirect to log in
         return redirect(url_for('login'))
-    return render_template('home.html', user_id=session['user_id'], name=name, following=following)
+    return render_template('home.html', user=user, categories=retrieve_list('c', db, session['user_id']), posts=retrieve_list('p', db, session['user_id']))
 
 
 @app.route('/profile/<int:user_id>')  # If session exists, show to profile screen, else redirect to login

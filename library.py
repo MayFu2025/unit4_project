@@ -40,22 +40,31 @@ class DatabaseWorker:  # For working with SQLlite database
 # Functions for hashing/verification
 hasher = sha256_crypt.using(rounds=30000)
 
+
 def make_hash(text: str) -> str:
     return hasher.hash(text)
+
 
 def check_hash_match(text: str, hashed: str) -> bool:
     return hasher.verify(text, hashed)
 
-def retrieve_list(choice:str, db:object, user_id):
+
+def retrieve_list(choice: str, db: object, user_id):
+    """Retrieves saved categories, posts, or users that the user is following.
+    Returns a list of lists with ids and names"""
     choices = {'c': 'saved_cats',
                'p': 'saved_posts',
                'u': 'following_u'}
     if choice in choices:
         result = db.search(f"SELECT {choices.get(choice)} FROM users WHERE id = {user_id}", multiple=False)[0]
         if result is None:
-            saved = []
+            ids = []
+            names = []
         else:
-            saved = map(int, result.split(','))
+            ids = map(int, result.split(','))
+            names = []
+            for id in ids:
+                names.append(db.search(f"SELECT name FROM categories WHERE id = {id}", multiple=False)[0])
     else:
-        saved = "Error: Invalid parameter"
-    return saved
+        return "Invalid Choice"
+    return [ids, names]
