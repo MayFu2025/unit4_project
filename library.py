@@ -61,10 +61,20 @@ def retrieve_list(choice: str, db: object, user_id):
             ids = []
             names = []
         else:
-            ids = map(int, result.split(','))
+            ids = list(map(int, result.split(',')))
             names = []
             for id in ids:
                 names.append(db.search(f"SELECT name FROM categories WHERE id = {id}", multiple=False)[0])
     else:
         return "Invalid Choice"
     return [ids, names]
+
+
+def get_all_posts(db: object, cat_ids: list[int]):
+    """Returns all posts that belong to the requested categories given as a list of category ids, latest posts first"""
+    query = "SELECT * FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "  #TODO: We do not need to select everything!
+    for cat_id in cat_ids:
+        query += "category_id = " + str(cat_id) + " OR "
+    query = query[:-3] + "ORDER BY date DESC" # Remove the last space and OR then sorts by date
+    print(query)
+    return db.search(query, multiple=True)

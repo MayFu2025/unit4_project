@@ -1,6 +1,6 @@
 import flask as fl
 from flask import request, session, redirect, url_for, render_template, make_response
-from library import DatabaseWorker, make_hash, check_hash_match, retrieve_list
+from library import DatabaseWorker, make_hash, check_hash_match, retrieve_list, get_all_posts
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
@@ -87,7 +87,9 @@ def home():
         user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
     else:  # If not logged in, redirect to log in
         return redirect(url_for('login'))
-    return render_template('home.html', user=user, categories=retrieve_list('c', db, session['user_id']), posts=retrieve_list('p', db, session['user_id']))
+
+    print(get_all_posts(db, retrieve_list('c', db, session['user_id'])[0]))
+    return render_template('home.html', user=user, categories=retrieve_list('c', db, session['user_id']), posts=get_all_posts(db, retrieve_list('c', db, session['user_id'])[0]))
 
 
 @app.route('/profile/<int:user_id>')  # If session exists, show to profile screen, else redirect to login
@@ -134,8 +136,8 @@ def get_category(cat_id):
     return 'Category Page'
 
 
-@app.route('/categories/<int:cat_id>/post/<int:post_id>')  # Show a post and all comments, form to add a new comment
-def get_post(cat_id, post_id):
+@app.route('/post/<int:post_id>')  # Show a post and all comments, form to add a new comment
+def get_post(post_id):
     return 'Post Page'
 
 

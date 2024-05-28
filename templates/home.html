@@ -8,7 +8,7 @@
     <div> <!--Sidebar Menu with each category that the user follows-->
         <h3>Your Following Categories:</h3>
         {% for cat_id in categories[0] %}
-            <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.depth0] }}</a>
+            <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.index0] }}</a>
         {% endfor %}
 
         <div> <!--After the fade out, permanently anchored to bottom-->
@@ -28,16 +28,15 @@
 
         <div> <!--List of Posts-->
             <h2>Latest Posts</h2>
-            {% for post in followedcategories %}
+            {% for post in posts %}
                 <div> <!--Post Preview-->
                     <div> <!--Post Image-->
                         <img src="{{ post.image }}" alt="Post Image">
                     </div>
-                    <p>{{ post.categoryname }}</p>
-                    <h2>{{ post.title }}</h2>
-                    <p>Posted by {{ post.author }} on {{ post.date }}</p>
-                    <p>{{ post.saves }} saves and {{ post.commentcount }} comments}</p>
-                    <a href="{{url_for('get_post', post_id=post.id)}}">View Post</a>
+                    <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[9] }}</a> <!--Post Category-->
+                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[4] }}</h3></a><!--Post Title-->
+                    <p>Posted by {{ None }} on {{ post[1] }}</p>  <!--Meant to be author-->
+                    <p>{{ post[2] }} saves and {{ post[3] }} comments</p>
                 </div>
             {% endfor %}
         </div> <!--End of List of Posts-->
