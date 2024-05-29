@@ -86,7 +86,7 @@ def get_all_posts(db: object, choice:str, ids: list[int]):
         choices = {'categories': 'category_id',
                    'posts': 'posts.id',
                    'users': 'user_id'}
-        query = "SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.attachment, categories.id, categories.name, users.id, users.uname FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "
+        query = "SELECT posts.id, posts.date, posts.comment_count, posts.title, posts.attachment, categories.id, categories.name, users.id, users.uname FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "
         for id in ids:
             query += f"{choices[choice]} = " + str(id) + " OR "
         query = query[:-3] + "ORDER BY date DESC" # Remove the last space and OR then sorts by date

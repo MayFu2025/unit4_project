@@ -4,15 +4,15 @@
 
 {% block content %}
     <h1>{{ post[4] }}</h1>
-    <h2>Posted by <a href="{{ url_for('get_profile',user_id=post[9])}}">{{ post[10] }}</a> on {{ post[1] }}</h2>
-    <h3>Category: <a href="{{url_for('get_category', cat_id=post[7])}}">{{ post[8] }}</a></h3>
+    <h2>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h2>
+    <h3>Category: <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h3>
 
-    <a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>
+    {% if post[8] != user_id %}<a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>{% endif %}
 
-    <p id="post-content">{{ post[5] }}</p>
+    <p id="post-content">{{ post[4] }}</p>
 
     {% if post[6] != None %} <!--If there is an image attachment-->
-        <img src="/uploads/{{ post[6] }}" alt="Post Image">
+        <img src="/uploads/{{ post[5] }}" alt="Post Image">
     {% endif %}
 
     {% if post[9] == user_id %}

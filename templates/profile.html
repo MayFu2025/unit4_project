@@ -58,10 +58,10 @@
                     <div id="post_image"> <!--Post Image-->
                         <img src="{{ post.image }}" alt="Post Image"> <!--TODO: All images TT-->
                     </div>
-                    <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a> <!--Post Category-->
-                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[4] }}</h3></a><!--Post Title-->
-                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
-                    <p>{{ post[2] }} saves and {{ post[3] }} comments</p> <!--TODO: saved count?-->
+                    <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a><!--Post Title-->
+                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>
+                    <p>{{ post[2] }} comments</p>
                 </div>
             {% endfor %}
         </div>
@@ -70,7 +70,11 @@
             <h2>Following Users</h2>
             {% for user in following_u %}
             <div class="profile_card">
-                <img src="/uploads/{{ user[2] }}" alt="profile picture of {{ user[1] }}">
+                {% if user[2] != None %}
+                    <img src="/uploads/{{ user[2] }}" alt="profile picture of {{ user[1] }}">
+                {% else %}
+                    <img src="/default_pfp.png" alt="Default Profile Picutre">
+                {% endif %}
                 <a href='{{ url_for('get_profile', user_id=user[0])}}'><h3>{{ user[1] }}</h3></a>
             </div>
             {% endfor %}
@@ -80,15 +84,18 @@
 
     <div> <!-- Posts by user -->
         <h1>Posts by {{ user[1] }}</h1>
+        {% if posts | length == 0 %}
+            <p>No posts yet</p>
+        {% endif %}
         {% for post in posts %}
                 <div id="post_prev"> <!--Post Preview-->
                     <div id="post_image"> <!--Post Image-->
                         <img src="{{ post.image }}" alt="Post Image">
                     </div>
-                    <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a> <!--Post Category-->
-                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[4] }}</h3></a><!--Post Title-->
-                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
-                    <p>{{ post[2] }} saves and {{ post[3] }} comments</p>
+                    <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a><!--Post Title-->
+                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                    <p>{{ post[2] }} comments</p>
                 </div>
             {% endfor %}
     </div>

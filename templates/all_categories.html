@@ -12,7 +12,7 @@
 
         {% for category in all_categories %}
             <div class="cat_card">
-                <img src="{{ category_image }}", alt="{{ category[1] }} Image">
+                <img src="/uploads/{{ category[3] }}" alt="{{ category[1] }} Image">
                 <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
             </div>
         {% endfor %}

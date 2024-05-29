@@ -207,7 +207,7 @@ def get_post(post_id):
             return redirect(url_for('get_post', post_id=post_id))
 
         else:
-            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname
+            post = db.search(query=f"""SELECT posts.id, posts.date, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname
                                         FROM posts INNER JOIN users ON posts.user_id = users.id INNER JOIN categories on posts.category_id = categories.id
                                         WHERE posts.id = {post_id}""", multiple=False)
             comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
@@ -303,7 +303,7 @@ def edit_comment(post_id, comment_id):
             db.run_query(f"UPDATE posts SET comment_count = comment_count + 1 WHERE id = {post_id}")
             return redirect(url_for("get_post", post_id=post_id))
         else:
-            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname
+            post = db.search(query=f"""SELECT posts.id, posts.date, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname
                                                     FROM posts INNER JOIN users ON posts.user_id = users.id INNER JOIN categories on posts.category_id = categories.id
                                                     WHERE posts.id = {post_id}""", multiple=False)
             comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
