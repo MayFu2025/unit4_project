@@ -122,7 +122,6 @@ def toggle_follow(db:object, choice:str, user_id:int, follow_id:int):
     if len(following) == 0:
         following=[follow_id]
     else:
-        following = list(map(int, following.split(',')))
         if follow_id in following:
             following.remove(follow_id)
         else:

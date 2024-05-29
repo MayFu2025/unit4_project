@@ -3,7 +3,8 @@ from datetime import datetime
 
 import flask as fl
 from flask import request, session, redirect, url_for, render_template, make_response, send_from_directory
-from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, check_session
+from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, \
+    check_session, toggle_follow
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
@@ -108,6 +109,7 @@ def get_profile(user_id):
     if check_session(session) is None:
         return redirect(url_for('login'))
     else:
+
         if user_id == session['user_id']:
             if request.method == 'POST':
                 pfp = request.files['pfp']
@@ -131,9 +133,21 @@ def get_profile(user_id):
                     users = db.search(query, multiple=True)
                 return render_template("profile.html", is_self=True, user_id=session['user_id'], categories=categories, user=user, following_u=users, saved_posts=posts, posts=get_all_posts(db, 'users', [user[0]]))
 
-        else: # User is requesting to see another user's profile
+        else:  # User is requesting to see another user's profile
             categories = retrieve_following('categories', db, session['user_id'])  # Find saved categories for Navbar
-            return render_template('profile.html', is_self=False, user_id=session['user_id'], categories=categories, user=db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False), posts=get_all_posts(db, 'users', [user_id]))
+            users = retrieve_following('users', db, session['user_id'])
+            return render_template('profile.html', is_self=False, user_id=session['user_id'], categories=categories, user=db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False), following_u=users, posts=get_all_posts(db, 'users', [user_id]))
+
+@app.route('/profile/<int:user_id>/follow')
+def follow_user(user_id):
+    if check_session(session) is None:
+        return redirect(url_for('login'))
+    else:
+        if user_id == session['user_id']:
+            return 'You cannot follow yourself'
+        else:
+            toggle_follow(db, 'users', session['user_id'], user_id)
+            return redirect(url_for('get_profile', user_id=user_id))
 
 
 # Categories, posts, and threads
@@ -170,6 +184,14 @@ def new_category():
 def get_category(cat_id):
     user_id = check_session(session)
     details = db.search(f"SELECT * FROM categories WHERE id={cat_id}", False)
+    print(details)
+    return render_template('category.html', user_id=user_id, categories=retrieve_following('categories', db, session['user_id']), details=details, posts=get_all_posts(db, choice="categories", ids=[cat_id]))
+
+@app.route('/categories/<int:cat_id>/follow')
+def follow_category(cat_id):
+    user_id = check_session(session)
+    details = db.search(f"SELECT * FROM categories WHERE id={cat_id}", False)
+    toggle_follow(db, 'categories', user_id, cat_id)
     return render_template('category.html', user_id=user_id, categories=retrieve_following('categories', db, session['user_id']), details=details, posts=get_all_posts(db, choice="categories", ids=[cat_id]))
 
 
@@ -191,7 +213,15 @@ def get_post(post_id):
             comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
                                             FROM comments INNER JOIN users ON comments.user_id = users.id INNER JOIN posts ON comments.post_id = posts.id
                                             WHERE posts.id = {post_id}""", multiple=True)
-            return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, editing_comment=None)
+            following = retrieve_following('posts', db, session['user_id'])
+            return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, following=following, editing_comment=None)
+
+@app.route('/post/<int:post_id>/follow')
+def save_post(post_id):
+    user_id = check_session(session)
+    toggle_follow(db, 'posts', user_id, post_id)
+    return redirect(url_for('get_post', post_id=post_id))
+
 
 @app.route('/categories/<int:cat_id>/post/new', methods=['GET', 'POST'])  # User can create new post in category
 def new_post(cat_id):

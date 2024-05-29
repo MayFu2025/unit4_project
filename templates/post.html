@@ -6,7 +6,8 @@
     <h1>{{ post[4] }}</h1>
     <h2>Posted by <a href="{{ url_for('get_profile',user_id=post[9])}}">{{ post[10] }}</a> on {{ post[1] }}</h2>
     <h3>Category: <a href="{{url_for('get_category', cat_id=post[7])}}">{{ post[8] }}</a></h3>
-    <button>Like Post</button>
+
+    <a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>
 
     <p id="post-content">{{ post[5] }}</p>
 

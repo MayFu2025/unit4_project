@@ -13,11 +13,7 @@
                 <img src="/default_pfp.png" alt="Default Profile Picture">
             {% endif %}
             <h2>{{ user[1] }}</h2>
-            {% if user[0] in following_u %}
-                <button>Follow</button> <!--TODO: Make this button actually do something-->
-            {% else %}
-                <button>Unfollow</button> <!--TODO: Make this button actually do something-->
-            {% endif %}
+            <a href="{{ url_for('follow_user', user_id=user[0]) }}"><button>{% if user[0] in following_u[0] %}Unfollow{% else %}Follow{% endif %}</button></a>
         </div>
 
     {% else %}
@@ -51,7 +47,6 @@
             {% for category in categories[0] %}
             <div> <!-- Make the background for each category card the category photo -->
                 <a href='{{ url_for('get_category', cat_id=category)}}'><h3>{{ categories[1][loop.index0] }}</h3></a>
-                <button>Unfollow</button> <!-- Unfollow button to be anchored to right --> <!--TODO: Make this button actually do something-->
             </div>
             {% endfor %}
         </div>
@@ -66,7 +61,7 @@
                     <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a> <!--Post Category-->
                      <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[4] }}</h3></a><!--Post Title-->
                     <p>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
-                    <p>{{ post[2] }} saves and {{ post[3] }} comments</p>
+                    <p>{{ post[2] }} saves and {{ post[3] }} comments</p> <!--TODO: saved count?-->
                 </div>
             {% endfor %}
         </div>
@@ -75,7 +70,7 @@
             <h2>Following Users</h2>
             {% for user in following_u %}
             <div class="profile_card">
-                <img src="/uploads/{user[2]}" alt="profile picture of {{ user[1] }}">
+                <img src="/uploads/{{ user[2] }}" alt="profile picture of {{ user[1] }}">
                 <a href='{{ url_for('get_profile', user_id=user[0])}}'><h3>{{ user[1] }}</h3></a>
             </div>
             {% endfor %}

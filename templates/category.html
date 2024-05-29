@@ -7,11 +7,9 @@
         <img src="" alt="{{ details[1] }} image"> <!--TODO: IMAGE-->
         <h1>{{ details[1] }}</h1>
         <h3>{{ details[2] }}</h3>
-        {% if details[0] in categories %}
-            <button>Unfollow</button> <!-- TODO: Actually make button do something-->
-        {% else %}
-            <button>Follow</button>
-        {% endif %}
+
+        <a href="{{ url_for('follow_category', cat_id=details[0]) }}"><button>{% if details[0] in categories[0] %}Unfollow{% else %}Follow{% endif %}</button></a> <!-- TODO: Actually make button do something-->
+
         <a href="{{ url_for("new_post", cat_id=details[0]) }}"><button>Create Post</button></a>
     </div>
     <div>
