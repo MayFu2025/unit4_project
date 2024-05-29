@@ -1,20 +1,20 @@
 {% extends "navbar.html" %}
 
-{% block title %}Post: {{ None }}{% endblock %}
+{% block title %}Post: {{ post[4] }}{% endblock %}
 
 {% block content %}
     <h1>{{ post[4] }}</h1>
-    <h2>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h2>
-    <h3>Category: <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h3>
+    <h2>Posted by <a href="{{ url_for('get_profile',user_id=post[9])}}">{{ post[10] }}</a> on {{ post[1] }}</h2>
+    <h3>Category: <a href="{{url_for('get_category', cat_id=post[7])}}">{{ post[8] }}</a></h3>
     <button>Like Post</button>
 
     <p id="post-content">{{ post[5] }}</p>
 
-    {% if post[8] == user_id %} <!--If there is an image attatchemnt-->
-        <img src="{{ url_for('static', filename='images/' + post[4]) }}" alt="Post Image">
+    {% if post[6] != None %} <!--If there is an image attachment-->
+        <img src="/uploads/{{ post[6] }}" alt="Post Image">
     {% endif %}
 
-    {% if post[8] == user_id %}
+    {% if post[9] == user_id %}
         <div>
             <button><a href="{{ url_for('edit_post', post_id=post[0]) }}">Edit Post</a></button>
             <button><a href="{{ url_for('delete_post', post_id=post[0]) }}">Delete Post</a></button>
@@ -24,10 +24,8 @@
     <div id="new_comment">
         <h3>Write a Comment</h3>
         <form method="post">
-            <label>
-                {% if editing_comment != None %}Currently Editing{% endif %} Comment:
-                <input type="text" name="new_comment" value={% if editing_comment == None %}""{% else %}{{ editing_comment }}{% endif %}>
-            </label>
+            <label for="new_comment">{% if editing_comment != None %}Currently Editing{% endif %} Comment:</label>
+            <textarea class="multiline_input" id="new_comment" name="new_comment">{% if editing_comment != None %}{{ editing_comment }}{% endif %}</textarea>
             <button type="submit">Post Comment</button>
         </form>
     </div>
@@ -36,7 +34,8 @@
             {% for comment in comments %}
                 <div id="comment-card">
                     <img src="{{ pfp }}" alt="{{ comment[4] }}'s Profile Picture">
-                    <p>{{ comment[4] }}: {{ comment[2] }}</p>
+                    <p>{{ comment[1] }}</p>
+                    <p><a href="{{ url_for('get_profile', user_id=comment[3]) }}">{{ comment[4] }}</a>: {{ comment[2] }}</p>
                     {% if comment[3] == user_id %}
                         <button><a href="{{ url_for("edit_comment", comment_id=comment[0], post_id=post[0])}}">Edit Comment</a></button>
                         <button><a href="{{ url_for("delete_comment", comment_id=comment[0], post_id=post[0])}}">Delete Comment</a></button>

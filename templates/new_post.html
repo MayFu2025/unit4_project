@@ -1,0 +1,22 @@
+{% extends "navbar.html" %}
+
+{% block title %}Create New Post{% endblock %}
+
+{% block content %}
+    <h1>Create New Post in <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h1>
+    <h2>Creating a new post as <a href="{{ url_for('get_profile', user_id=user_id) }}">{{ uname }}</a> on <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h2>
+    <div class="new_post">
+        <form method="POST" enctype="multipart/form-data">
+            <label for="title">Post Title:</label>
+                <input type="text" id="title" name="title" required>
+
+            <label for="content">Content:</label>
+                <textarea class="multiline_input" id="content" name="content" required></textarea>
+
+            <label for="attachment">Attachment: (optional)</label>
+                <input type="file" id="attachment" name="attachment" accept="image/*">
+
+            <input type="submit" value="Create Post">
+        </form>
+    </div>
+{% endblock %}

@@ -1,10 +1,16 @@
+import os
+from datetime import datetime
+
 import flask as fl
-from flask import request, session, redirect, url_for, render_template, make_response
+from flask import request, session, redirect, url_for, render_template, make_response, send_from_directory
 from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, check_session, delete_object
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
 app.secret_key = 'aslkcjfahroeuhnaczlfewhagakdjsfhaljasgakjhjoiaufecanmakweoiqwepsadfqf'
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+UPLOAD_DIR = os.path.join(BASE_DIR, 'static/images')
+app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
 
 # if check_session(session) is not None:
 #     user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
@@ -89,7 +95,7 @@ def recover():
 @app.route('/')  # If session exists, redirect to home screen
 def home():
     # Check if the user is logged in, if so, retrieve name, profile picture, saved categories, and saved posts
-    if 'user_id' in session:
+    if 'user_id' in session: #TODO: switch to new method using check_session
         user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
 
         if request.method == 'GET':
@@ -171,9 +177,26 @@ def all_categories():
     return render_template('all_categories.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), all_categories=all_categories, count=category_count)
 
 
-@app.route('/categories/new')  # User can create new category
+@app.route('/categories/new', methods=['GET', 'POST'])  # User can create new category
 def new_category():
-    return 'New Category'
+    if check_session(session) is None:
+        return redirect(url_for('login'))
+    else:
+        if request.method == 'POST':
+            name = request.form.get('name')
+            description = request.form.get('description')
+
+            file = request.files['image']
+            print(file)
+            if file:
+                filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S-")) + file.filename
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                filename = None
+            db.run_query(f"INSERT INTO categories (name, description, img) VALUES ('{name}', '{description}', '{filename}')")
+            return redirect(url_for('all_categories'))
+        else:
+            return render_template('new_category.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']))
 
 
 @app.route('/categories/<int:cat_id>')  # Show all posts in a category
@@ -195,7 +218,7 @@ def get_post(post_id):
             return redirect(url_for('get_post', post_id=post_id))
 
         else:
-            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, categories.id, categories.name, users.id, users.uname
+            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname
                                         FROM posts INNER JOIN users ON posts.user_id = users.id INNER JOIN categories on posts.category_id = categories.id
                                         WHERE posts.id = {post_id}""", multiple=False)
             comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
@@ -203,13 +226,34 @@ def get_post(post_id):
                                             WHERE posts.id = {post_id}""", multiple=True)
             return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, editing_comment=None)
 
-@app.route('/categories/<int:cat_id>/post/new')  # User can create new post in category
+@app.route('/categories/<int:cat_id>/post/new', methods=['GET', 'POST'])  # User can create new post in category
 def new_post(cat_id):
-    return 'New Post Page'
+    if check_session(session) is None:
+        return redirect(url_for('login'))
+    else:
+        if request.method == 'POST':
+            user_id = check_session(session)
+            title = request.form.get('title')
+            content = request.form.get('content')
+
+            file = request.files['attachment']
+            print(file)
+            if file:
+                filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S-")) + file.filename
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                filename = None
+            db.run_query(f"INSERT INTO posts (title, content, attachment, user_id, category_id) VALUES ('{title}', '{content}', '{filename}',{user_id}, {cat_id})")
+            return redirect(url_for('get_category', cat_id=cat_id))
+        else:
+            cat_name = db.search(f"SELECT name FROM categories WHERE id = {cat_id}", multiple=False)[0]
+            uname = db.search(f"SELECT uname FROM users WHERE id = {session['user_id']}", multiple=False)[0]
+            return render_template('new_post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), cat_id=cat_id, cat_name=cat_name, uname=uname, editing_post=None)
 
 
 @app.route('/post/<int:post_id>/edit')  # Edit a post, if owner of post
 def edit_post(post_id):
+
     return 'Edit Post Page'
 
 @app.route('/post/<int:post_id>/delete')  # Delete a post, if owner of post
@@ -230,7 +274,7 @@ def edit_comment(post_id, comment_id):
             db.run_query(f"UPDATE comments SET content = '{new_comment}' WHERE id = {comment_id}")
             return redirect(url_for("get_post", post_id=post_id))
         else:
-            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, categories.id, categories.name, users.id, users.uname
+            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname
                                                     FROM posts INNER JOIN users ON posts.user_id = users.id INNER JOIN categories on posts.category_id = categories.id
                                                     WHERE posts.id = {post_id}""", multiple=False)
             comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
@@ -251,6 +295,10 @@ def delete_comment(post_id, comment_id):
         db.run_query(f"DELETE FROM comments WHERE id = {id}")
         return redirect(url_for('get_post', post_id=post_id))
 
+
+@app.route('/uploads/<filename>')
+def get_img(filename):
+    return send_from_directory(UPLOAD_DIR, filename)
 
 if __name__ == '__main__':
     app.run()
