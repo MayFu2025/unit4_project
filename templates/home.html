@@ -6,20 +6,22 @@
     {% block css %} {% endblock %}
 </head>
 <body>
-    <div id="navbar">
-        <h2>Navigate:</h2>
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('all_categories') }}">All Categories</a>
+    {% block navbar %}{% endblock %}
 
-        <h3>Your Following Categories:</h3>
-        {% for cat_id in categories[0] %}
-            <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.index0] }}</a>
-        {% endfor %}
-        <div> <!--After the fade out, permanently anchored to bottom-->
-            <a href="{{ url_for('get_profile', user_id=user_id) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
-    </div>
+{#    <div id="navbar">#}
+{#        <h2>Navigate:</h2>#}
+{#        <a href="{{ url_for('home') }}">Home</a>#}
+{#        <a href="{{ url_for('all_categories') }}">All Categories</a>#}
+{##}
+{#        <h3>Your Following Categories:</h3>#}
+{#        {% for cat_id in categories[0] %}#}
+{#            <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.index0] }}</a>#}
+{#        {% endfor %}#}
+{#        <div> <!--After the fade out, permanently anchored to bottom-->#}
+{#            <a href="{{ url_for('get_profile', user_id=user_id) }}">Profile</a>#}
+{#            <a href="{{ url_for('logout') }}">Logout</a>#}
+{#        </div>#}
+{#    </div>#}
 
     <div> <!--Main Content of Page-->
         <h1>Welcome to PLATFORM, {% if user[1] %} {{ user[1] }} {%else%} {{ user[0] }} {%endif%}!</h1>
