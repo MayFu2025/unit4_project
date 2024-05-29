@@ -49,6 +49,13 @@ def make_hash(text: str) -> str:
 def check_hash_match(text: str, hashed: str) -> bool:
     return hasher.verify(text, hashed)
 
+def check_for_deleted(db:object, choice:str, id_list:list[int]):
+    for id in id_list:
+        if db.search(f"SELECT id FROM {choice} WHERE id = {id}", multiple=False) is None:
+            print(db.search(f"SELECT id FROM {choice} WHERE id = {id}", multiple=False))
+            id_list.remove(id)
+    return id_list
+
 
 def retrieve_following(choice: str, db: object, user_id:int):
     """Retrieves saved categories, posts, or users that the user is following.
@@ -62,7 +69,7 @@ def retrieve_following(choice: str, db: object, user_id:int):
             ids = []
             names = []
         else:
-            ids = list(map(int, result.split(',')))
+            ids = check_for_deleted(db=db, choice=choice, id_list=list(map(int, result.split(','))))
             names = []
             for id in ids:
                 # print(db.search(f"SELECT {choices[choice][1]} FROM {choice} WHERE id = {id}", multiple=False)[0])
@@ -121,3 +128,17 @@ def toggle_follow(db:object, choice:str, user_id:int, follow_id:int):
             following.append(follow_id)
     db.run_query(f"UPDATE users SET {choices[choice]} = '{','.join(map(str, following))}' WHERE id = {user_id}")
     return "Successfully Updated"
+
+
+def delete_object(db:object, choice:str, id:int):
+    """Deletes a post or comment from the database"""
+    if choice == "comment":
+        db.run_query(f"DELETE FROM comments WHERE id = {id}")
+        print("comment deleted!")
+    elif choice == "post":
+        db.run_query(f"DELETE FROM posts WHERE id = {id}")
+        db.run_query(f"DELETE FROM comments WHERE post_id = {id}")
+        print("post deleted!")
+    else:
+        return "Invalid Choice"
+    return "Successfully Deleted"

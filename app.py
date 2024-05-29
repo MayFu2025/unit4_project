@@ -1,6 +1,6 @@
 import flask as fl
 from flask import request, session, redirect, url_for, render_template, make_response
-from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, check_session
+from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, check_session, delete_object
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
@@ -201,7 +201,7 @@ def get_post(post_id):
             comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
                                             FROM comments INNER JOIN users ON comments.user_id = users.id INNER JOIN posts ON comments.post_id = posts.id
                                             WHERE posts.id = {post_id}""", multiple=True)
-            return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments)
+            return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, editing_comment=None)
 
 @app.route('/categories/<int:cat_id>/post/new')  # User can create new post in category
 def new_post(cat_id):
@@ -218,14 +218,38 @@ def delete_post(post_id):
 
 
 @app.route(
-    '/post/<int:post_id>/comment/<int:comment_id>')  # Edit or Delete a comment of post, if owner of comment
-def edit_comment(cat_id, post_id, comment_id):
-    return 'Post Page'
+    '/post/<int:post_id>/comment/<int:comment_id>/edit', methods=['GET', 'POST'])  # Edit or Delete a comment of post, if owner of comment
+def edit_comment(post_id, comment_id):
+    if check_session(session) is None:
+        redirect(url_for('login'))
+    elif check_session(session) != db.search(f"SELECT user_id FROM comments WHERE id = {comment_id}", multiple=False)[0]:
+        return 'You do not have permission to edit this comment' #TODO: we need a proper popup or page for this
+    else:
+        if request.method == 'POST':
+            new_comment = request.form.get('new_comment')
+            db.run_query(f"UPDATE comments SET content = '{new_comment}' WHERE id = {comment_id}")
+            return redirect(url_for("get_post", post_id=post_id))
+        else:
+            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, categories.id, categories.name, users.id, users.uname
+                                                    FROM posts INNER JOIN users ON posts.user_id = users.id INNER JOIN categories on posts.category_id = categories.id
+                                                    WHERE posts.id = {post_id}""", multiple=False)
+            comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
+                                                        FROM comments INNER JOIN users ON comments.user_id = users.id INNER JOIN posts ON comments.post_id = posts.id
+                                                        WHERE posts.id = {post_id}""", multiple=True)
+            comment_content = db.search(f"SELECT content FROM comments WHERE id = {comment_id}", multiple=False)[0]
+            return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, editing_comment=comment_content)
+
 
 @app.route(
-    '/post/<int:post_id>/comment/<int:comment_id>')  # Edit or Delete a comment of post, if owner of comment
-def delete_comment(cat_id, post_id, comment_id):
-    return 'Post Page'
+    '/post/<int:post_id>/comment/<int:comment_id>/delete')
+def delete_comment(post_id, comment_id):
+    if check_session(session) is None:
+        redirect(url_for('login'))
+    elif check_session(session) != db.search(f"SELECT user_id FROM comments WHERE id = {comment_id}", multiple=False)[0]:
+        return 'You do not have permission to delete this comment'  # TODO: we need a proper popup or page for this
+    else:
+        db.run_query(f"DELETE FROM comments WHERE id = {id}")
+        return redirect(url_for('get_post', post_id=post_id))
 
 
 if __name__ == '__main__':
