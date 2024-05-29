@@ -4,10 +4,10 @@
 
 {% block content %}
     <div> <!--Category Header-->
-        <img src="results.html" alt="{{ details[1] }} image">
+        <img src="" alt="{{ details[1] }} image"> <!--TODO: IMAGE-->
         <h1>{{ details[1] }}</h1>
         <h3>{{ details[2] }}</h3>
-        {% if details[0] not in categories %}
+        {% if details[0] in categories %}
             <button>Unfollow</button> <!-- TODO: Actually make button do something-->
         {% else %}
             <button>Follow</button>
@@ -21,9 +21,9 @@
                     <div id="post_image"> <!--Post Image-->
                         <img src="{{ post.image }}" alt="Post Image">
                     </div>
-                    <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                    <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a> <!--Post Category-->
                      <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[4] }}</h3></a><!--Post Title-->
-                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
                     <p>{{ post[2] }} saves and {{ post[3] }} comments</p>
                 </div>
             {% endfor %}

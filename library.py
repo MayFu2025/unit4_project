@@ -86,7 +86,7 @@ def get_all_posts(db: object, choice:str, ids: list[int]):
         choices = {'categories': 'category_id',
                    'posts': 'posts.id',
                    'users': 'user_id'}
-        query = "SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, categories.id, categories.name, users.id, users.uname FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "
+        query = "SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.attachment, categories.id, categories.name, users.id, users.uname FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "
         for id in ids:
             query += f"{choices[choice]} = " + str(id) + " OR "
         query = query[:-3] + "ORDER BY date DESC" # Remove the last space and OR then sorts by date
@@ -129,18 +129,4 @@ def toggle_follow(db:object, choice:str, user_id:int, follow_id:int):
             following.append(follow_id)
     db.run_query(f"UPDATE users SET {choices[choice]} = '{','.join(map(str, following))}' WHERE id = {user_id}")
     return "Successfully Updated"
-
-
-def delete_object(db:object, choice:str, id:int):
-    """Deletes a post or comment from the database"""
-    if choice == "comment":
-        db.run_query(f"DELETE FROM comments WHERE id = {id}")
-        print("comment deleted!")
-    elif choice == "post":
-        db.run_query(f"DELETE FROM posts WHERE id = {id}")
-        db.run_query(f"DELETE FROM comments WHERE post_id = {id}")
-        print("post deleted!")
-    else:
-        return "Invalid Choice"
-    return "Successfully Deleted"
 

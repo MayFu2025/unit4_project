@@ -3,7 +3,7 @@ from datetime import datetime
 
 import flask as fl
 from flask import request, session, redirect, url_for, render_template, make_response, send_from_directory
-from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, check_session, delete_object
+from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, check_session
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
@@ -86,11 +86,6 @@ def register():
     return render_template('register.html')
 
 
-@app.route('/recover')  # Recover account screen
-def recover():
-    return 'Register Page'
-
-
 # User specific pages
 @app.route('/')  # If session exists, redirect to home screen
 def home():
@@ -103,70 +98,42 @@ def home():
             return render_template('home.html', user_id=session['user_id'], user=user, categories=retrieve_following('categories', db, session['user_id']),
                                    posts=get_all_posts(db, 'categories', retrieve_following('categories', db, session['user_id'])[0]))
 
-        elif request.method == 'POST':  #TODO: not working but also not priority :D
-            keyword = request.form.get('search')
-            # print(keyword)
-            results = search_all_posts(db, keyword)
-            return redirect(url_for('search', user=user, categories=retrieve_following('categories', db, session['user_id']),
-                                   keyword=keyword, results=results))
-
     else:  # If not logged in, redirect to log in
         return redirect(url_for('login'))
 
 
-@app.route('/?search=<string:keyword>')  # Search for keyword in posts
-def search(user, categories, keyword, results):
-    return render_template('results.html', user=user, categories=categories, keyword=keyword, results=results)
 
-@app.route('/profile/<int:user_id>')  # If session exists, show to profile screen, else redirect to login
+@app.route('/profile/<int:user_id>', methods=['GET', 'POST'])  # If session exists, show to profile screen, else redirect to login
 def get_profile(user_id):
-    if 'user_id' in session:
+    if check_session(session) is None:
+        return redirect(url_for('login'))
+    else:
         if user_id == session['user_id']:
-            user = db.search(f"SELECT id, uname, name, email, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
-            categories = retrieve_following('categories', db, user_id)
-            posts = get_all_posts(db, choice='posts', ids=retrieve_following('posts', db, user_id)[0])
-
-            if len(retrieve_following('users', db, user_id)[0]) == 0:
-                users = []
+            if request.method == 'POST':
+                pfp = request.files['pfp']
+                if pfp:
+                    filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S-")) + pfp.filename
+                    pfp.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    db.run_query(f"UPDATE users SET pfp = '{filename}' WHERE id = {user_id}")
+                return redirect(url_for('get_profile', user_id=user_id))
             else:
-                query = "SELECT id, uname, pfp FROM users WHERE "
-                for id in retrieve_following('users', db, user_id)[0]:
-                    query += f"id = {id} OR "
-                query = query[:-4]
-                users = db.search(query, multiple=True)
-            # print(retrieve_following('users', db, user_id)[0])
-            # print(users)
-            return render_template("profile.html", is_self=True, user_id=session['user_id'], categories=categories, user=user, following_u=users, saved_posts=posts, posts=get_all_posts(db, 'users', [user[0]]))
+                user = db.search(f"SELECT id, uname, email, pfp, saved_cats, saved_posts FROM users WHERE id = {user_id}", multiple=False)
+                categories = retrieve_following('categories', db, user_id)
+                posts = get_all_posts(db, choice='posts', ids=retrieve_following('posts', db, user_id)[0])
+
+                if len(retrieve_following('users', db, user_id)[0]) == 0:
+                    users = []
+                else:
+                    query = "SELECT id, uname, pfp FROM users WHERE "
+                    for id in retrieve_following('users', db, user_id)[0]:
+                        query += f"id = {id} OR "
+                    query = query[:-4]
+                    users = db.search(query, multiple=True)
+                return render_template("profile.html", is_self=True, user_id=session['user_id'], categories=categories, user=user, following_u=users, saved_posts=posts, posts=get_all_posts(db, 'users', [user[0]]))
 
         else: # User is requesting to see another user's profile
             categories = retrieve_following('categories', db, session['user_id'])  # Find saved categories for Navbar
-            # print(categories)
             return render_template('profile.html', is_self=False, user_id=session['user_id'], categories=categories, user=db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False), posts=get_all_posts(db, 'users', [user_id]))
-    else:
-        return redirect(url_for('login'))
-
-
-
-
-    # else:
-    #
-    #         if user_id == session['user_id']:  # The user is requesting to see their own profile
-    #             user = db.search(f"SELECT * FROM users WHERE id = {u_id}", multiple=False)
-    #             print(user)
-    #             # Find saved categories
-    #             saved_cats = retrieve_following('categories', db, user_id)
-    #             # Find saved posts
-    #             saved_posts = retrieve_following('posts', db, user_id)
-    #             # Find following users
-    #             following_u = retrieve_following('users', db, user_id)
-    #             return render_template('profile.html', user_id=user[0], details=user, saved_cats=saved_cats,saved_posts=saved_posts, following_u=following_u)
-    #         else:  # The user is requesting to see another user's profile
-    #             user = db.search(f"SELECT id, uname, pfp FROM users WHERE id = {user_id}", multiple=False)
-    #             return render_template('profile.html', user_id=user[0], details=user)
-
-@app.route('/profile/<int:user_id>/edit')  # If session exists, show to profile screen, else redirect to login
-def edit_profile():
-    return 'Profile Page'
 
 
 # Categories, posts, and threads
@@ -248,17 +215,48 @@ def new_post(cat_id):
         else:
             cat_name = db.search(f"SELECT name FROM categories WHERE id = {cat_id}", multiple=False)[0]
             uname = db.search(f"SELECT uname FROM users WHERE id = {session['user_id']}", multiple=False)[0]
-            return render_template('new_post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), cat_id=cat_id, cat_name=cat_name, uname=uname, editing_post=None)
+            return render_template('new_post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), cat_id=cat_id, cat_name=cat_name, uname=uname)
 
 
-@app.route('/post/<int:post_id>/edit')  # Edit a post, if owner of post
+@app.route('/post/<int:post_id>/edit', methods=['GET', 'POST'])  # Edit a post, if owner of post
 def edit_post(post_id):
+    if check_session(session) is None:
+        redirect(url_for('login'))
+    elif check_session(session) != db.search(f"SELECT user_id FROM posts WHERE id = {post_id}", multiple=False)[0]:
+        return 'You do not have permission to edit this post'  # TODO: we need a proper popup or page for this
+    else:
+        if request.method=='POST':
+            title = request.form.get('title')
+            content = request.form.get('content')
+            attachment = request.files['attachment']
+            if not attachment:
+                db.run_query(f"UPDATE posts SET title = '{title}', content = '{content}' WHERE id = {post_id}")
+            else:
+                filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S-")) + attachment.filename
+                attachment.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                db.run_query(f"UPDATE posts SET title = '{title}', content = '{content}', attachment = '{filename}' WHERE id = {post_id}")
+            return redirect(url_for('get_post', post_id=post_id))
+        else:
+            cat_id = db.search(f"SELECT category_id FROM posts WHERE id = {post_id}", multiple=False)[0]
+            cat_name = db.search(f"SELECT name FROM categories WHERE id = {cat_id}", multiple=False)[0]
+            uname = db.search(f"SELECT uname FROM users WHERE id = {session['user_id']}", multiple=False)[0]
 
-    return 'Edit Post Page'
+            title = db.search(f"SELECT title FROM posts WHERE id = {post_id}", multiple=False)[0]
+            content = db.search(f"SELECT content FROM posts WHERE id = {post_id}", multiple=False)[0]
+            attachment = db.search(f"SELECT attachment FROM posts WHERE id = {post_id}", multiple=False)[0]
+            return render_template('edit_post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), cat_id=cat_id, cat_name=cat_name, uname=uname, editing_post=[title, content, attachment])
 
 @app.route('/post/<int:post_id>/delete')  # Delete a post, if owner of post
 def delete_post(post_id):
-    return 'Delete Post Page'
+    if check_session(session) is None:
+        redirect(url_for('login'))
+    elif check_session(session) != db.search(f"SELECT user_id FROM posts WHERE id = {post_id}", multiple=False)[0]:
+        return 'You do not have permission to delete this post'  # TODO: we need a proper popup or page for this
+    else:
+        cat_id = db.search(f"SELECT category_id FROM posts WHERE id = {post_id}", multiple=False)[0]
+        db.run_query(f"DELETE FROM comments WHERE post_id = {post_id}")
+        db.run_query(f"DELETE FROM posts WHERE post_id={post_id}")
+        return redirect(url_for('get_category', cat_id=cat_id))
 
 
 @app.route(
@@ -272,6 +270,7 @@ def edit_comment(post_id, comment_id):
         if request.method == 'POST':
             new_comment = request.form.get('new_comment')
             db.run_query(f"UPDATE comments SET content = '{new_comment}' WHERE id = {comment_id}")
+            db.run_query(f"UPDATE posts SET comment_count = comment_count + 1 WHERE id = {post_id}")
             return redirect(url_for("get_post", post_id=post_id))
         else:
             post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname
@@ -292,13 +291,18 @@ def delete_comment(post_id, comment_id):
     elif check_session(session) != db.search(f"SELECT user_id FROM comments WHERE id = {comment_id}", multiple=False)[0]:
         return 'You do not have permission to delete this comment'  # TODO: we need a proper popup or page for this
     else:
-        db.run_query(f"DELETE FROM comments WHERE id = {id}")
+        db.run_query(f"DELETE FROM comments WHERE id = {comment_id}")
+        db.run_query(f"UPDATE posts SET comment_count = comment_count - 1 WHERE id = {post_id}")
         return redirect(url_for('get_post', post_id=post_id))
 
 
 @app.route('/uploads/<filename>')
 def get_img(filename):
     return send_from_directory(UPLOAD_DIR, filename)
+
+@app.route('/<filename>')
+def get_default_img(filename):
+    return send_from_directory(os.path.join(BASE_DIR, 'static'), filename)
 
 if __name__ == '__main__':
     app.run()
