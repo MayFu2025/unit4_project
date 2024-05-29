@@ -166,7 +166,9 @@ def edit_profile():
 # Categories, posts, and threads
 @app.route('/categories')  # Show button that redirects to all categories in alphabetical order
 def all_categories():
-    return 'All Categories'
+    all_categories = db.search(query="SELECT * from categories ORDER BY name ASC", multiple=True)
+    category_count = db.search(query="SELECT COUNT(*) FROM categories", multiple=False)[0]
+    return render_template('all_categories.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), all_categories=all_categories, count=category_count)
 
 
 @app.route('/categories/new')  # User can create new category

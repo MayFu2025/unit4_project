@@ -22,13 +22,18 @@
 
 
     <div id="categories">
-        <h1>All Categories</h1>
-        <h2>{{ None }} categories total, sorted alphabetically</h2>
-        <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
-        {% for cat_id in all_categories[0] %}
-            <div>
-                <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ all_categories[1][loop.index0] }}</a>
+        <div>
+            <h1>All Categories</h1>
+            <h2>{{ count }} categories total, sorted alphabetically</h2>
+            <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
+        </div>
+
+        {% for category in all_categories %}
+            <div class="cat_card">
+                <img src="{{ category_image }}", alt="{{ category[1] }} Image">
+                <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
             </div>
         {% endfor %}
+    </div>
 </body>
 </html>
