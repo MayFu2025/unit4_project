@@ -183,32 +183,48 @@ def get_category(cat_id):
     return render_template('category.html', user_id=user_id, categories=retrieve_following('categories', db, session['user_id']), details=details, posts=get_all_posts(db, choice="categories", ids=[cat_id]))
 
 
-@app.route('/post/<int:post_id>')  # Show a post and all comments, form to add a new comment
+@app.route('/post/<int:post_id>', methods=['GET', 'POST'])  # Show a post and all comments, form to add a new comment
 def get_post(post_id):
-    post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, categories.id, categories.name, users.id, users.uname
-                                FROM posts INNER JOIN users ON posts.user_id = users.id INNER JOIN categories on posts.category_id = categories.id
-                                WHERE posts.id = {post_id}""", multiple=False)
-    comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id users.uname
-                                    FROM comments INNER JOIN users ON comments.user_id = users.id
-                                    WHERE posts.id = {post_id}""", multiple=True)
-    print(post)
-    print(comments)
-    return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments)
+    if check_session(session) is None:
+        return redirect(url_for('login'))
+    else:
+        if request.method == 'POST':
+            user_id = check_session(session)
+            new_comment = request.form.get('new_comment')
+            db.run_query(f"INSERT INTO comments (content, user_id, post_id) VALUES ('{new_comment}', {user_id}, {post_id})")
+            return redirect(url_for('get_post', post_id=post_id))
 
+        else:
+            post = db.search(query=f"""SELECT posts.id, posts.date, posts.saved_count, posts.comment_count, posts.title, posts.content, categories.id, categories.name, users.id, users.uname
+                                        FROM posts INNER JOIN users ON posts.user_id = users.id INNER JOIN categories on posts.category_id = categories.id
+                                        WHERE posts.id = {post_id}""", multiple=False)
+            comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
+                                            FROM comments INNER JOIN users ON comments.user_id = users.id INNER JOIN posts ON comments.post_id = posts.id
+                                            WHERE posts.id = {post_id}""", multiple=True)
+            return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments)
 
 @app.route('/categories/<int:cat_id>/post/new')  # User can create new post in category
 def new_post(cat_id):
     return 'New Post Page'
 
 
-@app.route('/categories/<int:cat_id>/post/<int:post_id>/edit')  # Edit a post, if owner of post
-def edit_post(cat_id, post_id):
+@app.route('/post/<int:post_id>/edit')  # Edit a post, if owner of post
+def edit_post(post_id):
     return 'Edit Post Page'
+
+@app.route('/post/<int:post_id>/delete')  # Delete a post, if owner of post
+def delete_post(post_id):
+    return 'Delete Post Page'
 
 
 @app.route(
-    '/categories/<int:cat_id>/post/<int:post_id>/comment/<int:comment_id>')  # Edit a comment of post, if owner of comment
+    '/post/<int:post_id>/comment/<int:comment_id>')  # Edit or Delete a comment of post, if owner of comment
 def edit_comment(cat_id, post_id, comment_id):
+    return 'Post Page'
+
+@app.route(
+    '/post/<int:post_id>/comment/<int:comment_id>')  # Edit or Delete a comment of post, if owner of comment
+def delete_comment(cat_id, post_id, comment_id):
     return 'Post Page'
 
 

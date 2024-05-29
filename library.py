@@ -100,7 +100,7 @@ def search_all_posts(db:object, keyword:str):
 def check_session(session):
     """Checks if the user is logged in, returns user_id"""
     if 'user_id' not in session:
-        return make_response(url_for('login'))
+        return None
     else:
         return session['user_id']
 

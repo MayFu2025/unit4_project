@@ -3,5 +3,44 @@
 {% block title %}Post: {{ None }}{% endblock %}
 
 {% block content %}
-<h1>Test</h1>
+    <h1>{{ post[4] }}</h1>
+    <h2>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h2>
+    <h3>Category: <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h3>
+    <button>Like Post</button>
+
+    <p id="post-content">{{ post[5] }}</p>
+
+    {% if post[8] == user_id %} <!--If there is an image attatchemnt-->
+        <img src="{{ url_for('static', filename='images/' + post[4]) }}" alt="Post Image">
+    {% endif %}
+
+    {% if post[8] == user_id %}
+        <div>
+            <button><a href="{{ url_for('edit_post', post_id=post[0]) }}">Edit Post</a></button>
+            <button><a href="{{ url_for('delete_post', post_id=post[0]) }}">Delete Post</a></button>
+        </div>
+    {% endif %}
+
+    <div id="new_comment">
+        <h3>Write a Comment</h3>
+        <form method="post">
+            <label>
+                Comment:
+                <input type="text" name="new_comment" value="">
+            </label>
+            <button type="submit">Post Comment</button>
+        </form>
+    </div>
+    <div id="post_comments">
+        <h3>Comments</h3>
+            {% for comment in comments %}
+                <div id="comment-card">
+                    <p>{{ comment[4] }}: {{ comment[2] }}</p>
+                    {% if comment[3] == user_id %}
+                        <button><a href="{{ url_for("edit_comment", comment_id=comment[0], post_id=post[0])}}">Edit Comment</a></button>
+                        <button><a href="{{ url_for("delete_comment", comment_id=comment[0], post_id=post[0])}}">Delete Comment</a></button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+    </div>
 {% endblock %}
