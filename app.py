@@ -185,7 +185,9 @@ def get_category(cat_id):
 
 @app.route('/post/<int:post_id>')  # Show a post and all comments, form to add a new comment
 def get_post(post_id):
-    return 'Post Page'
+    post = db.search(query="SELECT posts.id, posts.date, posts. FROM posts WHERE id = {post_id}", multiple=False)
+    comments = None
+    return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), comments=db.search(f"SELECT * FROM comments WHERE post_id={post_id}", True))
 
 
 @app.route('/categories/<int:cat_id>/post/new')  # User can create new post in category
