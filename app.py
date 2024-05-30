@@ -2,13 +2,11 @@ import os
 import string
 from datetime import datetime
 import random
-import mail
 from flask_mail import Mail, Message
 
 import flask as fl
-from flask import request, session, redirect, url_for, render_template, make_response, send_from_directory
-from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, search_all_posts, \
-    check_session, toggle_follow
+from flask import request, session, redirect, url_for, render_template, send_from_directory
+from library import DatabaseWorker, make_hash, check_hash_match, retrieve_following, get_all_posts, check_session, toggle_follow, send_email, recipients_from_post, recipients_from_category
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
@@ -18,19 +16,13 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, 'static/images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
 
-app.config['MAIL_SERVER']= 'emailserver.com'
-app.config['MAIL_PORT'] = 123
-app.config['MAIL_USERNAME'] = 'example@domain.com'
-app.config['MAIL_PASSWORD'] = '*******'
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-mail = Mail(app)
-
-# if check_session(session) is not None:
-#     user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
-#     categories = retrieve_following('categories', db, session['user_id'])
-#     posts = retrieve_following('posts', db, session['user_id'])
-#     users = retrieve_following('users', db, session['user_id'])
+# Only for Demonstration, as DNS is not available
+# app.config['MAIL_SERVER']= 'emailserver.com'
+# app.config['MAIL_PORT'] = 123
+# app.config['MAIL_USERNAME'] = 'example@domain.com'
+# app.config['MAIL_PASSWORD'] = '*******'
+# app.config['MAIL_USE_TLS'] = True
+# mail = Mail(app)
 
 
 # For Login and Register
@@ -43,10 +35,8 @@ def login():
     if request.method == 'POST':
         uname = request.form.get('uname')
         pword = request.form.get('pword')
-        print(uname, pword)
         # Check database for user, then compare hash
         results = db.search(f"SELECT * FROM users WHERE uname = '{uname}'", multiple=False)
-        print(results)
         if results is None:
             print('User not found')
             return 'User not Found'  # User not found, redirect to somewhere
@@ -216,6 +206,15 @@ def get_post(post_id):
             user_id = check_session(session)
             new_comment = request.form.get('new_comment')
             db.run_query(f'INSERT INTO comments (content, user_id, post_id) VALUES ("{new_comment}", {user_id}, {post_id})')
+            db.run_query(f"UPDATE posts SET comment_count = comment_count + 1 WHERE id = {post_id}")
+
+            # DEMO: Send email to all users that have interacted with the post
+            # recipients = recipients_from_category(db, post_id)
+            # u_name = db.search(f"SELECT uname FROM users WHERE id = {user_id}", multiple=False)[0]
+            # post_name = db.search(f"SELECT title FROM posts WHERE id = {post_id}", multiple=False)[0]
+            # send_email(mail=mail, recipients=recipients, subject=f"New comment in {post_name}!",
+            #            content=f"New comment by {u_name} in {post_name}")
+
             return redirect(url_for('get_post', post_id=post_id))
 
         else:
@@ -225,6 +224,7 @@ def get_post(post_id):
             comments = db.search(query=f"""SELECT comments.id, comments.date, comments.content, users.id, users.uname
                                             FROM comments INNER JOIN users ON comments.user_id = users.id INNER JOIN posts ON comments.post_id = posts.id
                                             WHERE posts.id = {post_id}""", multiple=True)
+            print(comments)
             following = retrieve_following('posts', db, session['user_id'])
             return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, following=following, editing_comment=None)
 
@@ -253,6 +253,13 @@ def new_post(cat_id):
             else:
                 filename = None
             db.run_query(f'INSERT INTO posts (title, content, attachment, user_id, category_id) VALUES ("{title}", "{content}", "{filename}",{user_id}, {cat_id})')
+
+            # DEMO: Send email to all users following the category
+            # recipients = recipients_from_category(db, cat_id)
+            # u_name = db.search(f"SELECT uname FROM users WHERE id = {user_id}", multiple=False)[0]
+            # cat_name = db.search(f"SELECT name FROM categories WHERE id = {cat_id}", multiple=False)[0]
+            # send_email(mail=mail, recipients=recipients, subject=f"New post in a category you follow!",content=f"New post by {u_name} in {cat_name}")
+
             return redirect(url_for('get_category', cat_id=cat_id))
         else:
             cat_name = db.search(f"SELECT name FROM categories WHERE id = {cat_id}", multiple=False)[0]
@@ -312,7 +319,6 @@ def edit_comment(post_id, comment_id):
         if request.method == 'POST':
             new_comment = request.form.get('new_comment')
             db.run_query(f'UPDATE comments SET content = "{new_comment}" WHERE id = {comment_id}')
-            db.run_query(f"UPDATE posts SET comment_count = comment_count + 1 WHERE id = {post_id}")
             return redirect(url_for("get_post", post_id=post_id))
         else:
             post = db.search(query=f"""SELECT posts.id, posts.date, posts.comment_count, posts.title, posts.content, posts.attachment, categories.id, categories.name, users.id, users.uname

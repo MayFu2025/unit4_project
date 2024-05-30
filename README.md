@@ -39,7 +39,7 @@
 - Cirrus was used as a CSS framework for the product. Using a CSS framework allows for more consistency in the design of the product, increasing the usability of the product. 
 
 ### Development
-#### Use of `{% block content %}` and `{% extends 'base.html' %}` in Jinja2
+### Use of `{% block content %}` and `{% extends 'base.html' %}` in Jinja2
 The use of `{% block content %}` and `{% extends 'base.html' %}` in Jinja2 allows for variables created in other html files to be used in the base template file. This is useful as it reduces repetition by allowing for some html code to be reused in several pages.
 
 When creating a navigation menu that was intended to be used on multiple pages, I initially had the same html code for the navigation bar on each template. Hence, to reduce redundant code, I used this technique so that the html for the navigation bar only needed to be written once.
@@ -109,7 +109,7 @@ Below is a portion of the file `home.html` which is an example of a child templa
         <h2>Welcome to the CLUBHOUSE, {{ user[1] }}!</h2>
         <h3><em>Where ISAKers talk all things clubs and activities.</em></h3>
 
-        OMMITTED FOR DEMONSTRATION
+        OMITTED FOR DEMONSTRATION
 
 {% endblock %}
 ```
@@ -119,8 +119,78 @@ The end result looks like this:
 ![](assets_for_md/navbar_example.png)
 *Fig.2* **Example of the navigation bar on the home page through the use of block content and extend**
 
+
 #### Use of Jinja operators and expressions to create dynamic content 
-In making the product, I pass variables from Python code in `app.py` when rendering HTML templates to create dynamic content customized to the user. For example, in 
+In making the product, I pass variables from Python code in `app.py` when rendering HTML templates to create dynamic content customized to the user. For example, in
+
+
+### Saving uploaded image files, retrieving and displaying them on the webpage
+So that users can customize their profile picture and add images to their posts, I created a way for users to upload images onto the website. An example is in the template `newpost.html`, alongside the `POST` method for the endpoint `new_post` in `app.py`:
+
+```html
+<div class="new_post">
+        <form method="POST" enctype="multipart/form-data">
+            
+            OMITTED FOR DEMONSTRATION
+            
+            <label for="attachment">Attachment: (optional)</label>
+                <input type="file" id="attachment" name="attachment" accept="image/*">
+            
+            <input type="submit" value="Create Post">
+        </form>
+    </div>
+```
+A HTML form allows users to send files, through the use of the `input` tag with the attribute `type=file`. Users can select a file from their computer, which when the form is submitted is sent to the server. The attribute `accept="image/*` is used to prevent users from uploading file formats other than images. This is important as the intention is to display a photo on the webpage, and other filetypes may not be compatible, potentially causing errors.
+
+```python
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+UPLOAD_DIR = os.path.join(BASE_DIR, 'static/images')
+app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
+
+@app.route('/uploads/<filename>')
+def get_img(filename):
+    return send_from_directory(UPLOAD_DIR, filename)
+
+@app.route('/<filename>')
+def get_default_img(filename):
+    return send_from_directory(os.path.join(BASE_DIR, 'static'), filename)
+```
+The photos must be uploaded somewhere, hence, I specify the directory where the images will be saved, In this case, I chose to upload the photos to the `images` folder in `static`. Hence, to get the path to the folder, I use the `os` module. The variable `BASEDIR` defined in the first line retrieves the path to where the file `app.py` is located. The variable `UPLOAD_DIR` concatenates this path with the path from the project to the `images` folder for the final directory. The `app.config['UPLOAD_FOLDER']` is set to the `UPLOAD_DIR` which is a way of telling the Flask application that this is the directory where images are being saved.
+
+Next, I define endpoints to retrieve the uploaded images in my webpages. I created the first endpoint, `get_img`, to retrieve and load images from the upload directory. Using the function `send_from_directory` from Flask, the image data can be loaded on the webpage. I chose to also create a second endpoint, `get_default_img` to retrieve images that I have uploaded as placeholders when the user chooses not to upload an image. I chose to do this to maintain consistency in the design of my website by allowing some components that expect an image to displayed even when missing an image from the user.
+
+Using `['UPLOAD_FOLDER']`, I can now save the image from the `POST` request in the previous html `form` to the specified directory. The code below is from the `POST` method for the endpoint `new_post` in `app.py`:
+
+```python
+@app.route('/categories/<int:cat_id>/post/new', methods=['GET', 'POST'])  # User can create new post in category
+def new_post(cat_id):
+    
+    PORTIONS OMITTED FOR DEMONSTRATION
+    
+    if request.method == 'POST':
+        user_id = check_session(session)
+        title = request.form.get('title')
+        content = request.form.get('content')
+
+        file = request.files['attachment']
+        if file:
+            filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S-")) + file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        else:
+            filename = None
+        db.run_query(f'INSERT INTO posts (title, content, attachment, user_id, category_id) VALUES ("{title}", "{content}", "{filename}",{user_id}, {cat_id})')
+        return redirect(url_for('get_category', cat_id=cat_id))
+```
+
+At submission of the form, a `POST` request is sent to the server, hence by using an if statement it can be specified what to do with the information from the form. Unlike when retrieving other data forms from the html `form` tag, the image must be retrieved using `request.files[inputname]`, and is saved as the variable `file`.
+
+In the next line, if `file` is defined, the current timestamp, retrieved using the `datetime` module, is concatenated with the name of the image file. This idea was recommended to me by an advisor. This works to prevent errors when a user uploads the file with the same name as a file that already exists in the directory, as timestamps are almost completely unique due to the nature of time. However, a weakness of this method is that images that already exist in the directory will be duplicate saved under a different name, potentially taking up space.
+
+The file is then saved to the directory specified in the app as `['UPLOAD_FOLDER']` using the `save` method. By joining the path of the destination directory and the filename, the image is effectively saved in the directory. Finally, a sqlite query is run to insert the new post into the database, which includes the filename of the image that it was saved as so that it can be retrieved using the endpoints defined earlier.
+
+
+
+
 
 
 ## Criteria D: Functionality

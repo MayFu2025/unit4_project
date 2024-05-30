@@ -1,0 +1,40 @@
+{% extends "navbar.html" %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+        <h2>Welcome to the CLUBHOUSE, {{ user[1] }}!</h2>
+        <h3 style="color:#4643e2"><em>Where ISAKers talk all things clubs and activities.</em></h3>
+
+        <div class="space space--lg"></div>
+
+        <div> <!--List of Posts-->
+        {% if posts | length == 0 %}
+            <h3>Start by following a club!</h3>
+            <a href="{{ url_for('all_categories')}}" class="u u-LR"><h4>Click here to view all clubs</h4></a>
+        {% else %}
+            <h3>Latest from your Following Clubs</h3>
+            <div class="p-1">
+            {% for post in posts %}
+                <div class="card"> <!--Post Preview-->
+                    <div class="card__container">
+                        <div class="card_image">
+                            {% if post[4] != "None" %}
+                                <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                            {% else %}
+                                <img src="/default_img.png" alt="Default Post Image">
+                            {% endif %}
+                        </div>
+                        <div class="card__title-container bg-light p-1">
+                            <a class="title" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>
+                            <a class="subtitle text-dark" href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                            <p class="subtitle text-dark">Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                            <p class="subtitle text-dark">{{ post[2] }} comments</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        </div> <!--End of List of Posts-->
+{% endblock %}

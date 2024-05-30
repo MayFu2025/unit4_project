@@ -132,8 +132,46 @@ def toggle_follow(db:object, choice:str, user_id:int, follow_id:int):
     return "Successfully Updated"
 
 def send_email(mail:Mail, recipients:list[str], subject:str, content:str, sender:str='example@domain.com'):
-    msg = Message(subject, sender=sender, recipients=recipients)
+    msg = Message(subject=subject, sender=("UWC ISAK Clubhouse", sender), recipients=recipients)
     msg.body = content
-    mail.send(msg)
+
+    print(f"""Email to be sent:
+    Subject: {subject}
+    Sender: {sender}
+    Recipients: {recipients}""")
+
+    mail.send(msg) # Will not work as the email server is not set up
     return "Email Sent"
 
+def recipients_from_post(db:object, post_id:int)->list[str]:
+    """Returns a list of email addresses of users who have interacted with a given post."""
+    ids = []
+    # Get the author of the post
+    ids.append(db.search(f"SELECT user_id FROM posts WHERE id = {post_id}", multiple=False))
+    # Get the users who have commented on the post
+    commenters = db.search(f"SELECT user_id FROM comments WHERE post_id = {post_id}", multiple=True)
+    for id in commenters:
+        if id not in ids:
+            ids.append(id)
+    # Get the users who have saved the post
+    savers = db.search(f"SELECT user_id FROM users WHERE saved_posts like '%,{post_id}' or saved_posts like '{post_id},%' or saved_posts='{post_id}'", multiple=True)[0]
+    for id in savers:
+        if id not in ids:
+            ids.append(id)
+
+    emails = []
+
+    for u_id in ids:
+        emails.append(db.search(f"SELECT email FROM users WHERE id = {u_id[0]}", multiple=False)[0])
+
+    return emails
+
+def recipients_from_category(db:object, cat_id:int)->list[str]:
+    """Returns a list of email addresses of users who follow a given category."""
+    emails = []
+    ids = db.search(f"SELECT id FROM users WHERE (saved_cats like '%,{cat_id}') or (saved_cats like '{cat_id},%') or (saved_cats='{cat_id}')", multiple=True)
+
+    for u_id in ids:
+        emails.append(db.search(f'SELECT email FROM users WHERE id = {u_id[0]}', multiple=False)[0])
+
+    return emails
