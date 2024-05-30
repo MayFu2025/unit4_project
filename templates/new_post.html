@@ -3,8 +3,12 @@
 {% block title %}Create New Post{% endblock %}
 
 {% block content %}
-    <h2>Create New Post in <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h2>
-    <h3>Creating a new post as <a href="{{ url_for('get_profile', user_id=user_id) }}">{{ uname }}</a> on <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h3>
+    <div class="space ..."></div>
+    <h2 class="uppercase">Create New Post in <a class="u u-LR" href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h2>
+    <h4>Creating a new post as <a class="u u-LR" href="{{ url_for('get_profile', user_id=user_id) }}">{{ uname }}</a> on <a class="u u-LR" href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h4>
+
+    <div class="divider"></div>
+
     <div class="new_post">
         <form method="POST" enctype="multipart/form-data">
             <label for="title">Post Title:</label>
@@ -20,7 +24,7 @@
             <label for="attachment">Attachment: (optional)</label>
                 <input type="file" id="attachment" name="attachment" accept="image/*">
 
-            <div class="space ..."></div>
+            <div class="space space--lg"></div>
 
             <input type="submit" value="Create Post">
         </form>

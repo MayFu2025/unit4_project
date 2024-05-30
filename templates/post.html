@@ -5,8 +5,8 @@
 {% block content %}
     <div class="space"></div>
     <div class="p-1">
-        <h2>"{{ post[3] }}"</h2>
-        <h4>Posted by <a class="u u-LR" href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h4>
+        <h2 class="uppercase">"{{ post[3] }}"</h2>
+        <h4 >Posted by <a class="u u-LR" href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h4>
         <h5>Category: <a class="u u-LR" href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h5>
 
         {% if post[8] != user_id %}<a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>{% endif %}
@@ -26,7 +26,7 @@
         {% endif %}
     </div>
 
-    <div class="space space--lg"></div>
+    <div class="divider"></div>
 
     <div id="new_comment">
         <h3>Write a Comment</h3>
@@ -37,7 +37,7 @@
         </form>
     </div>
 
-    <div class="space space--lg"></div>
+    <div class="space"></div>
 
     <div id="post_comments">
         <h3>Comments</h3>
@@ -45,15 +45,21 @@
                 <p>No comments yet! Why don't you be the first?</p>
             {% else %}
                 {% for comment in comments %}
-                    <div class="frame">
-                        <div class="frame__header">
-                            <p><em>On {{ comment[1] }}</em></p>
-                        <p><a href="{{ url_for('get_profile', user_id=comment[3]) }}">{{ comment[4] }}</a>: {{ comment[2] }}</p>
-                        {% if comment[3] == user_id %}
-                            <button><a href="{{ url_for("edit_comment", comment_id=comment[0], post_id=post[0])}}">Edit Comment</a></button>
-                            <button><a href="{{ url_for("delete_comment", comment_id=comment[0], post_id=post[0])}}">Delete Comment</a></button>
-                        {% endif %}
+                    <div class="tile u-shadow-md u-border-1 border-light bg-light p-1 w-90p">
+                        <div class="tile__container">
+                            <div class="space"></div>
+                            <h5 class="tile__title"><a href="{{ url_for('get_profile', user_id=comment[3]) }}">{{ comment[4] }}</a>:</h5>
+                            <div class="space"></div>
+                            <p style="font-size:large" class="font-alt">{{ comment[2] }}</p>
+                            <span class="info">On {{ comment[1] }}</span>
+                            <div class="space"></div>
+                            {% if comment[3] == user_id %}
+                                <button class="btn--sm uppercase"><a href="{{ url_for("edit_comment", comment_id=comment[0], post_id=post[0])}}">Edit Comment</a></button>
+                                <button class="btn--sm uppercase"><a href="{{ url_for("delete_comment", comment_id=comment[0], post_id=post[0])}}">Delete Comment</a></button>
+                            {% endif %}
+                        </div>
                     </div>
+                    <div class="space"></div>
                 {% endfor %}
             {% endif %}
     </div>

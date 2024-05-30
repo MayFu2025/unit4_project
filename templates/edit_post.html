@@ -3,23 +3,25 @@
 {% block title %}Editing Post: {{ editing_post[0] }}{% endblock %}
 
 {% block content %}
-    <h1>Editing "{{ editing_post[0] }}" in <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h1>
+    <div class="space"></div>
+    <h1>Editing "{{ editing_post[0] }}" in <a class="u u-LR" href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h1>
+    <div class="divider"></div>
     <div class="new_post">
         <form method="POST" enctype="multipart/form-data">
             <label for="title">New Post Title:</label>
                 <input type="text" id="title" name="title" value="{{ editing_post[0] }}" required>
 
-             <div class="space ..."></div>
+             <div class="space"></div>
 
             <label for="content">New Content:</label>
                 <textarea class="multiline_input" id="content" name="content" required>{{ editing_post[1] }}</textarea>
 
-             <div class="space ..."></div>
+             <div class="space"></div>
 
             <label for="attachment">New Attachment: (optional)</label>
                 <input type="file" id="attachment" name="attachment" accept="image/*">
 
-             <div class="space ..."></div>
+             <div class="space space--lg"></div>
 
             <input type="submit" value="Create Post">
 

@@ -3,7 +3,9 @@
 {% block title %}Create New Category{% endblock %}
 
 {% block content %}
-    <h2>Create New Category</h2>
+    <div class="space"></div>
+    <h2 class="uppercase">Create New Club Page</h2>
+    <div class="divider"></div>
     <div class="new_category">
         <form method="POST" enctype="multipart/form-data">
             <label for="name">Category Name:</label>
@@ -19,7 +21,7 @@
             <label for="image">Category Image:</label>
                 <input type="file" id="image" name="image" accept="image/*">
 
-            <div class="space ..."></div>
+            <div class="space space--lg"></div>
 
             <input type="submit" value="Create Category">
         </form>
