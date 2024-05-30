@@ -40,16 +40,20 @@
 
     <div id="post_comments">
         <h3>Comments</h3>
-            {% for comment in comments %}
-                <div class="frame">
-                    <div class="frame__header">
-                        <p><em>On {{ comment[1] }}</em></p>
-                    <p><a href="{{ url_for('get_profile', user_id=comment[3]) }}">{{ comment[4] }}</a>: {{ comment[2] }}</p>
-                    {% if comment[3] == user_id %}
-                        <button><a href="{{ url_for("edit_comment", comment_id=comment[0], post_id=post[0])}}">Edit Comment</a></button>
-                        <button><a href="{{ url_for("delete_comment", comment_id=comment[0], post_id=post[0])}}">Delete Comment</a></button>
-                    {% endif %}
-                </div>
-            {% endfor %}
+            {% if comments| length == 0 %}
+                <p>No comments yet! Why don't you be the first?</p>
+            {% else %}
+                {% for comment in comments %}
+                    <div class="frame">
+                        <div class="frame__header">
+                            <p><em>On {{ comment[1] }}</em></p>
+                        <p><a href="{{ url_for('get_profile', user_id=comment[3]) }}">{{ comment[4] }}</a>: {{ comment[2] }}</p>
+                        {% if comment[3] == user_id %}
+                            <button><a href="{{ url_for("edit_comment", comment_id=comment[0], post_id=post[0])}}">Edit Comment</a></button>
+                            <button><a href="{{ url_for("delete_comment", comment_id=comment[0], post_id=post[0])}}">Delete Comment</a></button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
     </div>
 {% endblock %}

@@ -1,5 +1,7 @@
 import os
+import string
 from datetime import datetime
+import random
 import mail
 from flask_mail import Mail, Message
 
@@ -10,7 +12,7 @@ from library import DatabaseWorker, make_hash, check_hash_match, retrieve_follow
 
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
-app.secret_key = 'aslkcjfahroeuhnaczlfewhagakdjsfhaljasgakjhjoiaufecanmakweoiqwepsadfqf'
+app.secret_key = ''.join(random.choices(string.ascii_letters + string.digits, k=20))
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, 'static/images')
@@ -35,7 +37,7 @@ mail = Mail(app)
 @app.route('/login', methods=['GET', 'POST'])  # Login screen
 def login():
     # If user already logged in, redirect to home screen
-    if 'user_id' in session:
+    if check_session(session) is not None:
         return redirect(url_for('home'))
     # Recieve username and password
     if request.method == 'POST':
@@ -69,7 +71,7 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])  # Register screen
 def register():
     # If user already logged in, redirect to home screen
-    if 'user_id' in session:
+    if check_session(session) is not None:
         return redirect(url_for('home'))
     # Receive new user details
     if request.method == 'POST':
@@ -183,7 +185,8 @@ def new_category():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 filename = None
-            db.run_query(f"INSERT INTO categories (name, description, img) VALUES ('{name}', '{description}', '{filename}')")
+            print(filename)
+            db.run_query(f'INSERT INTO categories (name, description, img) VALUES ("{name}", "{description}", "{filename}")')
             return redirect(url_for('all_categories'))
         else:
             return render_template('new_category.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']))
@@ -212,7 +215,7 @@ def get_post(post_id):
         if request.method == 'POST':
             user_id = check_session(session)
             new_comment = request.form.get('new_comment')
-            db.run_query(f"INSERT INTO comments (content, user_id, post_id) VALUES ('{new_comment}', {user_id}, {post_id})")
+            db.run_query(f'INSERT INTO comments (content, user_id, post_id) VALUES ("{new_comment}", {user_id}, {post_id})')
             return redirect(url_for('get_post', post_id=post_id))
 
         else:
@@ -249,7 +252,7 @@ def new_post(cat_id):
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 filename = None
-            db.run_query(f"INSERT INTO posts (title, content, attachment, user_id, category_id) VALUES ('{title}', '{content}', '{filename}',{user_id}, {cat_id})")
+            db.run_query(f'INSERT INTO posts (title, content, attachment, user_id, category_id) VALUES ("{title}", "{content}", "{filename}",{user_id}, {cat_id})')
             return redirect(url_for('get_category', cat_id=cat_id))
         else:
             cat_name = db.search(f"SELECT name FROM categories WHERE id = {cat_id}", multiple=False)[0]
@@ -269,11 +272,11 @@ def edit_post(post_id):
             content = request.form.get('content')
             attachment = request.files['attachment']
             if not attachment:
-                db.run_query(f"UPDATE posts SET title = '{title}', content = '{content}' WHERE id = {post_id}")
+                db.run_query(f'UPDATE posts SET title = "{title}", content = "{content}" WHERE id = {post_id}')
             else:
                 filename = str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S-")) + attachment.filename
                 attachment.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                db.run_query(f"UPDATE posts SET title = '{title}', content = '{content}', attachment = '{filename}' WHERE id = {post_id}")
+                db.run_query(f'UPDATE posts SET title = "{title}", content = "{content}", attachment = "{filename}" WHERE id = {post_id}')
             return redirect(url_for('get_post', post_id=post_id))
         else:
             cat_id = db.search(f"SELECT category_id FROM posts WHERE id = {post_id}", multiple=False)[0]
@@ -294,7 +297,7 @@ def delete_post(post_id):
     else:
         cat_id = db.search(f"SELECT category_id FROM posts WHERE id = {post_id}", multiple=False)[0]
         db.run_query(f"DELETE FROM comments WHERE post_id = {post_id}")
-        db.run_query(f"DELETE FROM posts WHERE post_id={post_id}")
+        db.run_query(f"DELETE FROM posts WHERE id={post_id}")
         return redirect(url_for('get_category', cat_id=cat_id))
 
 
@@ -308,7 +311,7 @@ def edit_comment(post_id, comment_id):
     else:
         if request.method == 'POST':
             new_comment = request.form.get('new_comment')
-            db.run_query(f"UPDATE comments SET content = '{new_comment}' WHERE id = {comment_id}")
+            db.run_query(f'UPDATE comments SET content = "{new_comment}" WHERE id = {comment_id}')
             db.run_query(f"UPDATE posts SET comment_count = comment_count + 1 WHERE id = {post_id}")
             return redirect(url_for("get_post", post_id=post_id))
         else:

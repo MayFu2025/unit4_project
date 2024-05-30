@@ -3,10 +3,17 @@
 {% block title %}Homepage{% endblock %}
 
 {% block content %}
-        <h2>Welcome to PLATFORM, {{ user[1] }}!</h2>
+        <h2>Welcome to the CLUBHOUSE, {{ user[1] }}!</h2>
+        <h3 style="color:#4643e2"><em>Where ISAKers talk all things clubs and activities.</em></h3>
+
+        <div class="space space--lg"></div>
 
         <div> <!--List of Posts-->
-            <h3>Latest from your Following Categories</h3>
+        {% if posts | length == 0 %}
+            <h3>Start by following a club!</h3>
+            <a href="{{ url_for('all_categories')}}" class="u u-LR"><h4>Click here to view all clubs</h4></a>
+        {% else %}
+            <h3>Latest from your Following Clubs</h3>
             <div class="p-1">
             {% for post in posts %}
                 <div class="card"> <!--Post Preview-->
@@ -28,5 +35,6 @@
                 </div>
                 {% endfor %}
             </div>
+        {% endif %}
         </div> <!--End of List of Posts-->
 {% endblock %}

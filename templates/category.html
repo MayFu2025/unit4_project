@@ -18,6 +18,9 @@
 
     <div class="p-1">
         <h2>Latest Posts from {{ details[1] }}</h2>
+        {% if posts | length == 0 %}
+            <p>No posts yet! Why don't you be the first?</p>
+        {% endif %}
         {% for post in posts %}
             <div class="card"> <!--Post Preview-->
                 <div class="card__container">
