@@ -4,21 +4,26 @@
 
 {% block content %}
     {% if is_self != True %}
-    <div> <!-- Profile Section -->
-        <h1>{{ user[1] }}'s Profile</h1>
-        <div> <!-- Image on the right -->
-            {% if user[3] != None %}
-                <img src="/uploads/{{ user[3] }}" alt="{{ user[1] }}'s Profile Picture">
-            {% else %}
-                <img src="/default_pfp.png" alt="Default Profile Picture">
-            {% endif %}
-            <h2>{{ user[1] }}</h2>
-            <a href="{{ url_for('follow_user', user_id=user[0]) }}"><button>{% if user[0] in following_u[0] %}Unfollow{% else %}Follow{% endif %}</button></a>
+        <h3>{{ user[1] }}</h3>
+        <div class="card w-max-90p"> <!-- Profile Section -->
+            <div class="card__container">
+                <div class="card_image">
+                    {% if user[3] != None %}  <!--TODO: thinks aaa has a pfp-->
+                        <img src="/uploads/{{ user[3] }}" alt="{{ user[1] }}'s Profile Picture">
+                    {% else %}
+                        <img src="/default_pfp.png" alt="Default Profile Picture">
+                    {% endif %}
+                </div>
+                <div class="card__action-bar">
+                    <a href="{{ url_for('follow_user', user_id=user[0]) }}"><button>{% if user[0] in following_u[0] %}Unfollow{% else %}Follow{% endif %}</button></a>
+                </div>
+
+            </div>
         </div>
 
     {% else %}
     <div> <!-- Profile Section -->
-        <h1>My Profile</h1>
+        <h2>My Profile</h2>
         <div> <!-- Image on the right -->
             {% if user[3] != None %}
                 <img src="/uploads/{{ user[3] }}" alt="Profile Picture">
@@ -40,26 +45,26 @@
     </div>
 
     <div> <!-- Following Categories/Posts Section -->
-        <h1>Following and Saved</h1>
+        <h2>Following and Saved</h2>
 
         <div> <!-- Following Categories -->
-            <h2>Following Categories</h2>
+            <h3>Following Categories</h3>
             {% for category in categories[0] %}
             <div> <!-- Make the background for each category card the category photo -->
-                <a href='{{ url_for('get_category', cat_id=category)}}'><h3>{{ categories[1][loop.index0] }}</h3></a>
+                <a href='{{ url_for('get_category', cat_id=category)}}'><h4>{{ categories[1][loop.index0] }}</h4></a>
             </div>
             {% endfor %}
         </div>
 
         <div>
-            <h2>Saved Posts</h2>
+            <h3>Saved Posts</h3>
             {% for post in saved_posts %}
                 <div id="post_prev"> <!--Post Preview-->
                     <div id="post_image"> <!--Post Image-->
                         <img src="{{ post.image }}" alt="Post Image"> <!--TODO: All images TT-->
                     </div>
                     <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
-                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a><!--Post Title-->
+                     <a href="{{url_for('get_post', post_id=post[0])}}"><h4>{{ post[3] }}</h4></a><!--Post Title-->
                     <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>
                     <p>{{ post[2] }} comments</p>
                 </div>
@@ -67,7 +72,7 @@
         </div>
     
         <div>
-            <h2>Following Users</h2>
+            <h3>Following Users</h3>
             {% for user in following_u %}
             <div class="profile_card">
                 {% if user[2] != None %}
@@ -75,7 +80,7 @@
                 {% else %}
                     <img src="/default_pfp.png" alt="Default Profile Picutre">
                 {% endif %}
-                <a href='{{ url_for('get_profile', user_id=user[0])}}'><h3>{{ user[1] }}</h3></a>
+                <a href='{{ url_for('get_profile', user_id=user[0])}}'><h4>{{ user[1] }}</h4></a>
             </div>
             {% endfor %}
         </div>
@@ -83,7 +88,7 @@
     {% endif %}
 
     <div> <!-- Posts by user -->
-        <h1>Posts by {{ user[1] }}</h1>
+        <h3>Posts by {{ user[1] }}</h3>
         {% if posts | length == 0 %}
             <p>No posts yet</p>
         {% endif %}
@@ -93,7 +98,7 @@
                         <img src="{{ post.image }}" alt="Post Image">
                     </div>
                     <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
-                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a><!--Post Title-->
+                     <a href="{{url_for('get_post', post_id=post[0])}}"><h4>{{ post[3] }}</h4></a><!--Post Title-->
                     <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
                     <p>{{ post[2] }} comments</p>
                 </div>

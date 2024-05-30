@@ -3,28 +3,26 @@
 {% block title %}Homepage{% endblock %}
 
 {% block content %}
-    <div> <!--Main Content of Page-->
-        <h1>Welcome to PLATFORM, {{ user[0] }}!</h1>
-        <div> <!--Search Bar-->
-                <form>
-                    <input type="search" name="search">
-                    <input type="submit" value="Search">
-                </form>
-        </div>
+        <h2>Welcome to PLATFORM, {{ user[1] }}!</h2>
 
         <div> <!--List of Posts-->
-            <h2>Latest Posts from your Following Categories</h2>
+            <h3>Latest from your Following Categories</h3>
+            <div class="p-1">
             {% for post in posts %}
-                <div id="post_prev"> <!--Post Preview-->
-                    <div id="post_image"> <!--Post Image TODO: change later with if statement so if not none -->
-                        <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                <div class="card"> <!--Post Preview-->
+                    <div class="card__container">
+                        <div class="card_image"> <!--Post Image TODO: change later with if statement so if not none -->
+                            <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                        </div>
+                        <div class="card__title-container bg-light p-1">
+                            <a class="title" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>
+                            <a class="subtitle text-dark" href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                            <p class="subtitle text-dark">Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                            <p class="subtitle text-dark">{{ post[2] }} comments</p>
+                        </div>
                     </div>
-                    <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
-                     <a href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a><!--Post Title-->
-                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
-                    <p>{{ post[2] }} comments</p>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div> <!--End of List of Posts-->
-    </div> <!--End of Main Content-->
 {% endblock %}

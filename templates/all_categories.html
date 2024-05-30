@@ -3,18 +3,16 @@
 {% block title %}All Categories{% endblock %}
 
 {% block content %}
-    <div id="categories">
-        <div id="all_cat_header">
-            <h1>All Categories</h1>
-            <h2>{{ count }} categories total, sorted alphabetically</h2>
-            <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
-        </div>
-
-        {% for category in all_categories %}
-            <div class="cat_card">
-                <img src="/uploads/{{ category[3] }}" alt="{{ category[1] }} Image">
-                <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
-            </div>
-        {% endfor %}
+    <div id="all_cat_header">
+        <h1>All Categories</h1>
+        <h2>{{ count }} categories total, sorted alphabetically</h2>
+        <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
     </div>
+
+    {% for category in all_categories %}
+        <div class="cat_card">
+            <img src="/uploads/{{ category[3] }}" alt="{{ category[1] }} Image">
+            <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
+        </div>
+    {% endfor %}
 {% endblock %}

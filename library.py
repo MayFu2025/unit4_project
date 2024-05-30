@@ -66,6 +66,7 @@ def retrieve_following(choice: str, db: object, user_id:int):
                'users': ['following_u','uname']}
     if choice in choices:
         result = db.search(f"SELECT {choices[choice][0]} FROM users WHERE id = {user_id}", multiple=False)[0]
+        print(choice, user_id, result)
         if result is None:
             ids = []
             names = []
@@ -90,7 +91,7 @@ def get_all_posts(db: object, choice:str, ids: list[int]):
         for id in ids:
             query += f"{choices[choice]} = " + str(id) + " OR "
         query = query[:-3] + "ORDER BY date DESC" # Remove the last space and OR then sorts by date
-        print(query)
+        # print(query)
         # print(db.search(query, multiple=True))
         return db.search(query, multiple=True)
     else:

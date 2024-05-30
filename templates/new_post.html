@@ -3,8 +3,8 @@
 {% block title %}Create New Post{% endblock %}
 
 {% block content %}
-    <h1>Create New Post in <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h1>
-    <h2>Creating a new post as <a href="{{ url_for('get_profile', user_id=user_id) }}">{{ uname }}</a> on <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h2>
+    <h2>Create New Post in <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h2>
+    <h3>Creating a new post as <a href="{{ url_for('get_profile', user_id=user_id) }}">{{ uname }}</a> on <a href="{{ url_for('get_category', cat_id=cat_id) }}">{{ cat_name }}</a></h3>
     <div class="new_post">
         <form method="POST" enctype="multipart/form-data">
             <label for="title">Post Title:</label>

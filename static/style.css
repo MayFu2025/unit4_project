@@ -1,0 +1,34 @@
+#navbar {
+    background-color: whitesmoke;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    left: 0;
+    padding: 10px;
+}
+
+#navbar-top {
+    position: fixed;
+    top: 10px;
+}
+
+#navbar-bottom {
+    position: fixed;
+    bottom: 10px;
+}
+
+#content {
+    position: absolute;
+    left:20%;
+    padding: 10px;
+}
+
+h2 {
+    color: #4643e2;
+}
+h3 {
+    color: #5e5cc7;
+}
+h4{
+    color: #7a78b9;
+}

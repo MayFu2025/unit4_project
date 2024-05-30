@@ -7,29 +7,38 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cirrus-ui/dist/cirrus.min.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <div id="navbar">
+    <div id="navbar" class="max-w-20p">
         <div id="navbar-top">
-            <h2>Navigate:</h2>
+            <h3>Navigate:</h3>
             <a href="{{ url_for('home') }}">Home</a>
+            <br>
             <a href="{{ url_for('all_categories') }}">All Categories</a>
         </div>
 
         <div id="navbar-following">
-            <h3>Your Following Categories:</h3>
+            <h4>Following Clubs:</h4>
             {% for cat_id in categories[0] %}
                 <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.index0] }}</a>
+                <br>
             {% endfor %}
         </div>
         <div id="navbar-bottom"> <!--After the fade out, permanently anchored to bottom-->
             <a href="{{ url_for('get_profile', user_id=user_id) }}">Profile</a>
+            <br>
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>
     </div>
+    <div id="content" class="max-w-80p">
+        {% block content %}{% endblock %}
+    </div>
 
-    {% block content %}{% endblock %}
 
 </body>
 
