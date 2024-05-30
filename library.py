@@ -65,9 +65,8 @@ def retrieve_following(choice: str, db: object, user_id:int):
                'posts': ['saved_posts','title'],
                'users': ['following_u','uname']}
     if choice in choices:
-        result = db.search(f"SELECT {choices[choice][0]} FROM users WHERE id = {user_id}", multiple=False)[0]
-        print(choice, user_id, result)
-        if result is None:
+        result = db.search(f"SELECT users.{choices[choice][0]} FROM users WHERE id = {user_id}", multiple=False)[0]
+        if result is None or result == '':
             ids = []
             names = []
         else:
