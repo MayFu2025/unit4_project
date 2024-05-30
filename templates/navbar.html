@@ -13,7 +13,7 @@
 </head>
 
 <body>
-    <div id="navbar" class="max-w-20p">
+    <div id="navbar" class="w-20p">
         <div id="navbar-top">
             <h3>Navigate:</h3>
             <a href="{{ url_for('home') }}" class="u u-LR">Home</a>
@@ -32,7 +32,7 @@
             <a href="{{ url_for('logout') }}" class="u u-LR">Logout</a>
         </div>
     </div>
-    <div id="website" class="max-w-80p">
+    <div id="website" class="w-80p">
         {% block content %}{% endblock %}
     </div>
 
