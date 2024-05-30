@@ -3,10 +3,11 @@
 {% block title %}Post: {{ post[4] }}{% endblock %}
 
 {% block content %}
+    <div class="space"></div>
     <div class="p-1">
         <h2>"{{ post[3] }}"</h2>
-        <h4>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h4>
-        <h4>Category: <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h4>
+        <h4>Posted by <a class="u u-LR" href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h4>
+        <h5>Category: <a class="u u-LR" href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h5>
 
         {% if post[8] != user_id %}<a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>{% endif %}
 

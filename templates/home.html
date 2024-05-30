@@ -3,36 +3,39 @@
 {% block title %}Homepage{% endblock %}
 
 {% block content %}
-        <h2>Welcome to the CLUBHOUSE, {{ user[1] }}!</h2>
-        <h3 style="color:#4643e2"><em>Where ISAKers talk all things clubs and activities.</em></h3>
-
-        <div class="space space--lg"></div>
+        <div class="space ..."></div>
+        <h1>Welcome to the CLUBHOUSE, {{ user[1] }}!</h1>
+        <h3 class="font-alt">Where ISAKers talk all things clubs and activities.</h3>
+        <div class="divider"></div>
+        <div class="space ..."></div>
 
         <div> <!--List of Posts-->
         {% if posts | length == 0 %}
             <h3>Start by following a club!</h3>
             <a href="{{ url_for('all_categories')}}" class="u u-LR"><h4>Click here to view all clubs</h4></a>
         {% else %}
-            <h3>Latest from your Following Clubs</h3>
+            <h3 class="uppercase">Latest from your Following Clubs</h3>
             <div class="p-1">
             {% for post in posts %}
-                <div class="card"> <!--Post Preview-->
-                    <div class="card__container">
-                        <div class="card_image">
+                <div class="frame u-shadow-md u-border-1 border-light bg-light"> <!--Post Preview-->
+                    <div class="row">
+                        <div class="col-5">
                             {% if post[4] != "None" %}
-                                <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                                <img style="width:100%;height:100%" src="/uploads/{{ post[4] }}" alt="Post Image">
                             {% else %}
-                                <img src="/default_img.png" alt="Default Post Image">
+                                <img style="width:100%;height:100%" src="/default_img.png" alt="Default Post Image">
                             {% endif %}
                         </div>
-                        <div class="card__title-container bg-light p-1">
-                            <a class="title" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>
-                            <a class="subtitle text-dark" href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
-                            <p class="subtitle text-dark">Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
-                            <p class="subtitle text-dark">{{ post[2] }} comments</p>
+                        <div class="col-7">
+                            <div class="space ..."></div>
+                            <a class="u u-LR" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>
+                            <a class="u u-LR" href="{{url_for('get_category', cat_id=post[5])}}"><h6>{{ post[6] }}</h6></a> <!--Post Category-->
+                            <p>Posted by <a class="u u-LR" href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                            <p>{{ post[2] }} comments</p>
                         </div>
                     </div>
                 </div>
+                <div class="space ..."></div>
                 {% endfor %}
             </div>
         {% endif %}

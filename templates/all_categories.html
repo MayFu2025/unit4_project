@@ -7,25 +7,26 @@
 
     <div class="p-1">
         <div>
-            <h2>All Categories</h2>
-            <h3>{{ count }} categories total, sorted alphabetically</h3>
+            <h2 class="uppercase">All Clubs</h2>
+            <h3 class="font-alt">{{ count }} categories total, sorted alphabetically</h3>
+            <div class="space"></div>
             <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
-            <hr>
         </div>
+    </div>
 
-        <div class="space space--xl"></div>
+    <div class="divider"></div>
 
-        <div class="p-1">
-            {% for category in all_categories %}
-                <div class="frame">
-                    <div class="frame__header">
-                        <img style="width: 100%;height: 100px" src="/uploads/{{ category[3] }}" alt="{{ category[1] }} Image">
-                        <div class="frame__title">
-                            <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
-                        </div>
+    <div class="p-1">
+        {% for category in all_categories %}
+            <div class="frame u-shadow-md u-border-1 border-light bg-light">
+                <div class="frame__header">
+                    <img style="width: 100%;height: 100px" src="/uploads/{{ category[3] }}" alt="{{ category[1] }} Image">
+                    <div class="frame__title">
+                        <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+            <div class="space"></div>
+        {% endfor %}
     </div>
 {% endblock %}

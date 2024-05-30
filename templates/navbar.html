@@ -13,14 +13,15 @@
 </head>
 
 <body>
-    <div id="navbar" class="w-20p">
+    <div id="navbar" class="w-20p u-border-1 border-light">
         <div id="navbar-top">
-            <h3>Navigate:</h3>
+            <div class="space ..."></div>
+            <h3>Navigate</h3>
             <a href="{{ url_for('home') }}" class="u u-LR">Home</a>
             <br>
             <a href="{{ url_for('all_categories') }}" class="u u-LR">All Categories</a>
-            <div class="space ..."></div>
-            <h4>Following Clubs:</h4>
+            <div class="space space--lg"></div>
+            <h5>Following Clubs:</h5>
             {% for cat_id in categories[0] %}
                 <a href="{{url_for('get_category', cat_id=cat_id)}}" class="u u-LR">{{ categories[1][loop.index0] }}</a>
                 <br>
@@ -31,6 +32,7 @@
             <br>
             <a href="{{ url_for('logout') }}" class="u u-LR">Logout</a>
         </div>
+        <div class="space ..."></div>
     </div>
     <div id="website" class="w-80p">
         {% block content %}{% endblock %}
