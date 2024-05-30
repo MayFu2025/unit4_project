@@ -11,8 +11,12 @@
             {% for post in posts %}
                 <div class="card"> <!--Post Preview-->
                     <div class="card__container">
-                        <div class="card_image"> <!--Post Image TODO: change later with if statement so if not none -->
-                            <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                        <div class="card_image">
+                            {% if post[4] != "None" %}
+                                <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                            {% else %}
+                                <img src="/default_img.png" alt="Default Post Image">
+                            {% endif %}
                         </div>
                         <div class="card__title-container bg-light p-1">
                             <a class="title" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>

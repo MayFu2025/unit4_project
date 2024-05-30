@@ -4,11 +4,11 @@
 
 {% block content %}
     {% if is_self != True %}
-        <h3>{{ user[1] }}</h3>
-        <div class="card w-max-90p"> <!-- Profile Section -->
+        <h2>{{ user[1] }}</h2>
+        <div class="card p-1"> <!-- Profile Section -->
             <div class="card__container">
                 <div class="card_image">
-                    {% if user[3] != None %}  <!--TODO: thinks aaa has a pfp-->
+                    {% if user[2] != None %}
                         <img src="/uploads/{{ user[3] }}" alt="{{ user[1] }}'s Profile Picture">
                     {% else %}
                         <img src="/default_pfp.png" alt="Default Profile Picture">
@@ -17,91 +17,127 @@
                 <div class="card__action-bar">
                     <a href="{{ url_for('follow_user', user_id=user[0]) }}"><button>{% if user[0] in following_u[0] %}Unfollow{% else %}Follow{% endif %}</button></a>
                 </div>
-
             </div>
         </div>
 
     {% else %}
-    <div> <!-- Profile Section -->
+    <div class="p-1"> <!-- Profile Section -->
         <h2>My Profile</h2>
-        <div> <!-- Image on the right -->
-            {% if user[3] != None %}
-                <img src="/uploads/{{ user[3] }}" alt="Profile Picture">
-            {% else %}
-                <img src="/default_pfp.png" alt="Default Profile Picture">
-            {% endif %}
-        </div>
-
-        <form method="POST" enctype="multipart/form-data">
-            <label for="pfp">New Profile Picture:</label>
-                <input type="file" id="pfp" name="pfp" accept="image/*">
-            <input type="submit" value="Upload">
-        </form>
-
-        <div> <!-- Profile Info on the left -->
-            <p>Username: {{ user[1] }}</p>
-            <p>Email: {{ user[2] }}</p>
+        <div class="card w-max-90p">
+            <div class="card__container p-1">
+                <div class="card_image">
+                    {% if user[3] != None %}
+                        <img src="/uploads/{{ user[3] }}" alt="Profile Picture">
+                    {% else %}
+                        <img src="/default_pfp.png" alt="Default Profile Picture">
+                    {% endif %}
+                </div>
+                <div class="content">
+                    <h4>Username: {{ user[1] }}</h4>
+                    <h4>Email: {{ user[2] }}</h4>
+                    <form method="POST" enctype="multipart/form-data">
+                        <label for="pfp">New Profile Picture:</label>
+                            <input type="file" id="pfp" name="pfp" accept="image/*">
+                        <input type="submit" value="Upload">
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div> <!-- Following Categories/Posts Section -->
+    <div class="space space--lg"></div>
+
+    <div class="p-1"> <!-- Following Categories/Posts Section -->
         <h2>Following and Saved</h2>
 
-        <div> <!-- Following Categories -->
+        <div class="p-1"> <!-- Following Categories -->
             <h3>Following Categories</h3>
             {% for category in categories[0] %}
-            <div> <!-- Make the background for each category card the category photo -->
-                <a href='{{ url_for('get_category', cat_id=category)}}'><h4>{{ categories[1][loop.index0] }}</h4></a>
+            <div class="frame p-1"> <!-- Make the background for each category card the category photo -->
+                <div class="frame__header">
+                    <div class="frame_title">
+                        <a href='{{ url_for('get_category', cat_id=category)}}'><h4>{{ categories[1][loop.index0] }}</h4></a>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
 
-        <div>
+        <div class="space space--lg"></div>
+
+        <div class="p-1">
             <h3>Saved Posts</h3>
-            {% for post in saved_posts %}
-                <div id="post_prev"> <!--Post Preview-->
-                    <div id="post_image"> <!--Post Image-->
-                        <img src="{{ post.image }}" alt="Post Image"> <!--TODO: All images TT-->
+            {% for post in posts %}
+                <div class="card"> <!--Post Preview-->
+                    <div class="card__container">
+                        <div class="card_image">
+                            {% if post[4] != "None" %}
+                                <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                            {% else %}
+                                <img src="/default_img.png" alt="Default Post Image">
+                            {% endif %}
+                        </div>
+                        <div class="card__title-container bg-light p-1">
+                            <a class="title" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>
+                            <a class="subtitle text-dark" href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                            <p class="subtitle text-dark">Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                            <p class="subtitle text-dark">{{ post[2] }} comments</p>
+                        </div>
                     </div>
-                    <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
-                     <a href="{{url_for('get_post', post_id=post[0])}}"><h4>{{ post[3] }}</h4></a><!--Post Title-->
-                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>
-                    <p>{{ post[2] }} comments</p>
                 </div>
             {% endfor %}
         </div>
-    
+
+        <div class="space space--lg"></div>
+
+
         <div>
             <h3>Following Users</h3>
             {% for user in following_u %}
-            <div class="profile_card">
-                {% if user[2] != None %}
-                    <img src="/uploads/{{ user[2] }}" alt="profile picture of {{ user[1] }}">
-                {% else %}
-                    <img src="/default_pfp.png" alt="Default Profile Picutre">
-                {% endif %}
-                <a href='{{ url_for('get_profile', user_id=user[0])}}'><h4>{{ user[1] }}</h4></a>
+            <div class="frame">
+                <div class="frame__header">
+                    {% if user[2] != None %}
+                        <img src="/uploads/{{ user[2] }}" alt="profile picture of {{ user[1] }}">
+                    {% else %}
+                        <img src="/default_pfp.png" alt="Default Profile Picutre">
+                    {% endif %}
+                    <div class="frame__title">
+                        <a href='{{ url_for('get_profile', user_id=user[0])}}'><h4>{{ user[1] }}</h4></a>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
 
-    <div> <!-- Posts by user -->
-        <h3>Posts by {{ user[1] }}</h3>
+    <div class="space space--lg"></div>
+
+    <div class="p-1"> <!-- Posts by user -->
+        <h2>Posts by {{ user[1] }}</h2>
         {% if posts | length == 0 %}
             <p>No posts yet</p>
         {% endif %}
-        {% for post in posts %}
-                <div id="post_prev"> <!--Post Preview-->
-                    <div id="post_image"> <!--Post Image-->
-                        <img src="{{ post.image }}" alt="Post Image">
+        <div class="p-1">
+            {% for post in posts %}
+                <div class="card"> <!--Post Preview-->
+                    <div class="card__container">
+                        <div class="card_image">
+                            {% if post[4] != "None" %}
+                                <img src="/uploads/{{ post[4] }}" alt="Post Image">
+                            {% else %}
+                                <img src="/default_img.png" alt="Default Post Image">
+                            {% endif %}
+                        </div>
+                        <div class="card__title-container bg-light p-1">
+                            <a class="title" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>
+                            <a class="subtitle text-dark" href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
+                            <p class="subtitle text-dark">Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
+                            <p class="subtitle text-dark">{{ post[2] }} comments</p>
+                        </div>
                     </div>
-                    <a href="{{url_for('get_category', cat_id=post[5])}}">{{ post[6] }}</a> <!--Post Category-->
-                     <a href="{{url_for('get_post', post_id=post[0])}}"><h4>{{ post[3] }}</h4></a><!--Post Title-->
-                    <p>Posted by <a href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p>  <!--Meant to be author-->
-                    <p>{{ post[2] }} comments</p>
                 </div>
             {% endfor %}
+        </div>
     </div>
 {% endblock %}

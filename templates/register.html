@@ -3,31 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>[PLATFORM] Register</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cirrus-ui/dist/cirrus.min.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <h1>Welcome to PLATFORM</h1>
-    <h2>Create a New Account to Continue</h2>
-    <form method="post">
-            <label for="username">Create a New Username:</label>
-            <input type="text" name="uname" required>
-            <br>
+    <div class="logins">
+        <h1>Welcome to PLATFORM</h1>
+        <h2>Create a New Account to Continue</h2>
+        <form method="post">
+                <label for="username">Create a New Username:</label>
+                <input type="text" name="uname" required>
 
-            <label for="email">Enter Your Email:</label>
-            <input type="email" name="email" required>
-            <br>
+                <div class="space ..."></div>
 
-            <label for="password">Create New Password:</label>
-            <input type="password" name="pword" required>
-            <br>
+                <label for="email">Enter Your Email:</label>
+                <input type="email" name="email" required>
 
-            <label for="check_password">Re-enter New Password:</label>
-            <input type="password" name="check_pword" required>
-            <br>
+                <div class="space ..."></div>
 
-            <input type="submit" value="Register">
-        </form>
-        <p>Already have an account? <a href="/login">Log-in</a></p>  <!--I'm assuming I have to use flask redirect/url for and I cannot just redirect-->
+                <label for="password">Create New Password:</label>
+                <input type="password" name="pword" required>
+
+                <div class="space ..."></div>
+
+                <label for="check_password">Re-enter New Password:</label>
+                <input type="password" name="check_pword" required>
+
+                <div class="space ..."></div>
+
+                <input type="submit" value="Register">
+            </form>
+        <p>Already have an account? <a href="/login" class="u u-LR">Log-in</a></p>
+    </div>
 </body>
 
 </html>

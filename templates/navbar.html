@@ -6,7 +6,6 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cirrus-ui/dist/cirrus.min.css">
@@ -17,25 +16,23 @@
     <div id="navbar" class="max-w-20p">
         <div id="navbar-top">
             <h3>Navigate:</h3>
-            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('home') }}" class="u u-LR">Home</a>
             <br>
-            <a href="{{ url_for('all_categories') }}">All Categories</a>
-        </div>
-
-        <div id="navbar-following">
+            <a href="{{ url_for('all_categories') }}" class="u u-LR">All Categories</a>
+            <div class="space ..."></div>
             <h4>Following Clubs:</h4>
             {% for cat_id in categories[0] %}
-                <a href="{{url_for('get_category', cat_id=cat_id)}}">{{ categories[1][loop.index0] }}</a>
+                <a href="{{url_for('get_category', cat_id=cat_id)}}" class="u u-LR">{{ categories[1][loop.index0] }}</a>
                 <br>
             {% endfor %}
         </div>
         <div id="navbar-bottom"> <!--After the fade out, permanently anchored to bottom-->
-            <a href="{{ url_for('get_profile', user_id=user_id) }}">Profile</a>
+            <a href="{{ url_for('get_profile', user_id=user_id) }}" class="u u-LR">Profile</a>
             <br>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('logout') }}" class="u u-LR">Logout</a>
         </div>
     </div>
-    <div id="content" class="max-w-80p">
+    <div id="website" class="max-w-80p">
         {% block content %}{% endblock %}
     </div>
 

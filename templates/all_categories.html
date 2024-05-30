@@ -3,16 +3,29 @@
 {% block title %}All Categories{% endblock %}
 
 {% block content %}
-    <div id="all_cat_header">
-        <h1>All Categories</h1>
-        <h2>{{ count }} categories total, sorted alphabetically</h2>
-        <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
-    </div>
+    <div class="space ..."></div>
 
-    {% for category in all_categories %}
-        <div class="cat_card">
-            <img src="/uploads/{{ category[3] }}" alt="{{ category[1] }} Image">
-            <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
+    <div class="p-1">
+        <div>
+            <h2>All Categories</h2>
+            <h3>{{ count }} categories total, sorted alphabetically</h3>
+            <a href="{{ url_for('new_category') }}"><button>Create New Category</button></a>
+            <hr>
         </div>
-    {% endfor %}
+
+        <div class="space space--xl"></div>
+
+        <div class="p-1">
+            {% for category in all_categories %}
+                <div class="frame">
+                    <div class="frame__header">
+                        <img style="width: 100%;height: 100px" src="/uploads/{{ category[3] }}" alt="{{ category[1] }} Image">
+                        <div class="frame__title">
+                            <a href="{{url_for('get_category', cat_id=category[0])}}"><h3>{{ category[1] }}</h3></a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

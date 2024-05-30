@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>[PLATFORM] Log-in</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cirrus-ui/dist/cirrus.min.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <h1>Welcome to PLATFORM</h1>
-    <h2>Log-in to Continue</h2>
-    <form method="post">
-        <label for="username">Enter your username:</label>
-        <input type="text" name="uname" required>
-        <br>
-        <label for="password">Enter your password:</label>
-        <input type="password" name="pword" required>
-        <br>
-        <input type="submit" value="Log-in">
-    </form>
-    <p>Don't have an account? <a href="/register">Register</a></p>
+    <div class="logins">
+        <h1>Welcome to PLATFORM</h1>
+        <h2>Log-in to Continue</h2>
+        <form method="post">
+            <label for="username">Enter your username:</label>
+            <input type="text" name="uname" required>
+            <div class="space ..."></div>
+            <label for="password">Enter your password:</label>
+            <input type="password" name="pword" required>
+            <div class="space ..."></div>
+            <input type="submit" value="Log-in">
+        </form>
+        <p>Don't have an account? <a href="/register" class="u u-LR">Register</a></p>
+    </div>
 </body>
 </html>

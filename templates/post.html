@@ -3,24 +3,29 @@
 {% block title %}Post: {{ post[4] }}{% endblock %}
 
 {% block content %}
-    <h1>{{ post[4] }}</h1>
-    <h2>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h2>
-    <h3>Category: <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h3>
+    <div class="p-1">
+        <h2>"{{ post[3] }}"</h2>
+        <h4>Posted by <a href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h4>
+        <h4>Category: <a href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h4>
 
-    {% if post[8] != user_id %}<a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>{% endif %}
+        {% if post[8] != user_id %}<a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>{% endif %}
 
-    <p id="post-content">{{ post[4] }}</p>
+        <p id="post-content">{{ post[4] }}</p>
+        {% if post[5] != "None" %} <!--If there is an image attachment-->
+            <img src="/uploads/{{ post[5] }}" alt="Post Image">
+        {% endif %}
 
-    {% if post[6] != None %} <!--If there is an image attachment-->
-        <img src="/uploads/{{ post[5] }}" alt="Post Image">
-    {% endif %}
+        <div class="space ..."></div>
 
-    {% if post[9] == user_id %}
-        <div>
-            <button><a href="{{ url_for('edit_post', post_id=post[0]) }}">Edit Post</a></button>
-            <button><a href="{{ url_for('delete_post', post_id=post[0]) }}">Delete Post</a></button>
-        </div>
-    {% endif %}
+        {% if post[8] == user_id %}
+            <div>
+                <button><a href="{{ url_for('edit_post', post_id=post[0]) }}">Edit Post</a></button>
+                <button><a href="{{ url_for('delete_post', post_id=post[0]) }}">Delete Post</a></button>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="space space--lg"></div>
 
     <div id="new_comment">
         <h3>Write a Comment</h3>
@@ -30,12 +35,15 @@
             <button type="submit">Post Comment</button>
         </form>
     </div>
+
+    <div class="space space--lg"></div>
+
     <div id="post_comments">
         <h3>Comments</h3>
             {% for comment in comments %}
-                <div id="comment-card">
-                    <img src="{{ pfp }}" alt="{{ comment[4] }}'s Profile Picture">
-                    <p>{{ comment[1] }}</p>
+                <div class="frame">
+                    <div class="frame__header">
+                        <p><em>On {{ comment[1] }}</em></p>
                     <p><a href="{{ url_for('get_profile', user_id=comment[3]) }}">{{ comment[4] }}</a>: {{ comment[2] }}</p>
                     {% if comment[3] == user_id %}
                         <button><a href="{{ url_for("edit_comment", comment_id=comment[0], post_id=post[0])}}">Edit Comment</a></button>

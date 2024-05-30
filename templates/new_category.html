@@ -3,17 +3,23 @@
 {% block title %}Create New Category{% endblock %}
 
 {% block content %}
-    <h1>Create New Category</h1>
+    <h2>Create New Category</h2>
     <div class="new_category">
         <form method="POST" enctype="multipart/form-data">
             <label for="name">Category Name:</label>
                 <input type="text" id="name" name="name" required>
 
+            <div class="space ..."></div>
+
             <label for="description">Description:</label>
                 <textarea class="multiline_input" id="description" name="description" required></textarea>
 
+            <div class="space ..."></div>
+
             <label for="image">Category Image:</label>
                 <input type="file" id="image" name="image" accept="image/*">
+
+            <div class="space ..."></div>
 
             <input type="submit" value="Create Category">
         </form>
