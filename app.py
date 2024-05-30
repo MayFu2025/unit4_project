@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+import mail
+from flask_mail import Mail, Message
 
 import flask as fl
 from flask import request, session, redirect, url_for, render_template, make_response, send_from_directory
@@ -9,9 +11,18 @@ from library import DatabaseWorker, make_hash, check_hash_match, retrieve_follow
 app = fl.Flask(__name__)
 db = DatabaseWorker('database.db')
 app.secret_key = 'aslkcjfahroeuhnaczlfewhagakdjsfhaljasgakjhjoiaufecanmakweoiqwepsadfqf'
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, 'static/images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
+
+app.config['MAIL_SERVER']= 'emailserver.com'
+app.config['MAIL_PORT'] = 123
+app.config['MAIL_USERNAME'] = 'example@domain.com'
+app.config['MAIL_PASSWORD'] = '*******'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+mail = Mail(app)
 
 # if check_session(session) is not None:
 #     user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
@@ -90,17 +101,15 @@ def register():
 # User specific pages
 @app.route('/')  # If session exists, redirect to home screen
 def home():
-    # Check if the user is logged in, if so, retrieve name, profile picture, saved categories, and saved posts
-    if 'user_id' in session: #TODO: switch to new method using check_session
+    if check_session(session) is None:
+        return redirect(url_for('login'))
+    else:
         user = db.search(f"SELECT id, uname, name, pfp, saved_cats, saved_posts FROM users WHERE id = {session['user_id']}", multiple=False)
 
         if request.method == 'GET':
             # print(get_all_posts(db=db, choice='categories', ids=retrieve_following('categories', db, session['user_id'])[0]))
             return render_template('home.html', user_id=session['user_id'], user=user, categories=retrieve_following('categories', db, session['user_id']),
                                    posts=get_all_posts(db, 'categories', retrieve_following('categories', db, session['user_id'])[0]))
-
-    else:  # If not logged in, redirect to log in
-        return redirect(url_for('login'))
 
 
 

@@ -1,5 +1,7 @@
 import os
 import sqlite3
+
+from flask_mail import Mail, Message
 from passlib.hash import sha256_crypt
 from flask import redirect, url_for, make_response
 
@@ -128,4 +130,10 @@ def toggle_follow(db:object, choice:str, user_id:int, follow_id:int):
             following.append(follow_id)
     db.run_query(f"UPDATE users SET {choices[choice]} = '{','.join(map(str, following))}' WHERE id = {user_id}")
     return "Successfully Updated"
+
+def send_email(mail:Mail, recipients:list[str], subject:str, content:str, sender:str='example@domain.com'):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = content
+    mail.send(msg)
+    return "Email Sent"
 
