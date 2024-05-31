@@ -41,8 +41,8 @@
 Cirrus was used as a CSS framework for the product. Using a CSS framework allows for more consistency in the design of the product, increasing the usability of the product. 
 
 ### Development
-### Use of `{% block content %}` and `{% extends 'base.html' %}` from Django [^1]
-The use of `{% block content %}` and `{% extends 'base.html' %}` from Django allows for variables created in other html files to be used in the base template file. This is useful as it reduces repetition by allowing for some html code to be reused in several pages.
+### Use of `{% block content %}` and `{% extends 'base.html' %}` from Django
+The use of `{% block content %}` and `{% extends 'base.html' %}` from Django allows for variables created in other html files to be used in the base template file. [^1] This is useful as it reduces repetition by allowing for some html code to be reused in several pages.
 
 When creating a navigation menu that was intended to be used on multiple pages, I initially had the same html code for the navigation bar on each template. Hence, to reduce redundant code, I used this technique so that the html for the navigation bar only needed to be written once.
 
@@ -122,7 +122,7 @@ The end result looks like this:
 *Fig.2* **Example of the navigation bar on the home page through the use of block content and extend**
 
 
-#### Use of Jinja operators and expressions to create dynamic content [^2] [^3] [^4]
+#### Use of Jinja operators and expressions to create dynamic content 
 
 In making the product, I pass variables from Python code in `app.py` when rendering HTML templates to create dynamic content customized to the user. An example of where this happens is in `category.html`:
 
@@ -159,9 +159,9 @@ In making the product, I pass variables from Python code in `app.py` when render
     </div>
 {% endblock %}
 ```
-For example, in line 5 of the above codeblock, I use an if statement and the Jinja filter `length` to create two possible outcomes on how the page will look like. Having such conditions to show certain components when the condition is met reduces the need to create multiple similar templates for different scenarios, effectively reducing redundant code. Furthermore, providing specific messages to known conditions can help guide the user and make the website more usable, as the developer can provide feedback to the user on what to do next in these expected scenarios.
+For example, in line 5 of the above codeblock, I use an if statement and the Jinja filter `length` to create two possible outcomes on how the page will look like. [^4] Having such conditions to show certain components when the condition is met reduces the need to create multiple similar templates for different scenarios, effectively reducing redundant code. Furthermore, providing specific messages to known conditions can help guide the user and make the website more usable, as the developer can provide feedback to the user on what to do next in these expected scenarios.
 
-Using jinja variables also helps increase connectivity between the pages of my website. For example, in lines 20, 21, and 22, I use a jinja block to use the Flask `url_for` function and pass the correct `post_id`, `category_id`, and `user_id` values to the respective endpoints. This allows me to create a hyperlink to the post, category, and user pages from this post preview, allowing users to easily navigate between related and similar pages that they may be likely to visit next.
+Using jinja variables also helps increase connectivity between the pages of my website. For example, in lines 20, 21, and 22, I use a jinja block to use the Flask `url_for` function and pass the correct `post_id`, `category_id`, and `user_id` values to the respective endpoints. [^2] This allows me to create a hyperlink to the post, category, and user pages from this post preview, allowing users to easily navigate between related and similar pages that they may be likely to visit next.
 
 The variables used in these Jinja blocks are passed through when rendering the template in the `app.py` file. Below is an example of how the variables are passed in the `get_category` endpoint:
 
@@ -174,7 +174,7 @@ def get_category(cat_id):
     posts= get_all_posts(db, choice="categories", ids=[cat_id]))
     return render_template('category.html', user_id=user_id, categories=categories, details=details, posts=posts)
 ```
-In line 8 of the html codeblock mentioned previously, I start a for loop that loops the variable `posts` to create multiple similar `divs` that display a preview of the post. By decapsulating various post information stored in the variabe `posts` and adding it to html content using Jinja, unique post displays can be created for each post in the category. The function `get_all_posts`, which retrieves the data for the variable `posts` is defined in `library.py` as follows:
+In line 8 of the html codeblock mentioned previously, I start a for loop that loops the variable `posts` to create multiple similar `divs` that display a preview of the post. [^3] By decapsulating various post information stored in the variabe `posts` and adding it to html content using Jinja, unique post displays can be created for each post in the category. The function `get_all_posts`, which retrieves the data for the variable `posts` is defined in `library.py` as follows:
 
 ```python
 def get_all_posts(db: object, choice:str, ids: list[int]):
@@ -195,8 +195,8 @@ def get_all_posts(db: object, choice:str, ids: list[int]):
 This function effectively returns a list of lists, where each inner list contains (in order) the post id, date posted, comment count, post title, filename of post attachment, the id of the category the post belongs to, the category name, the author user id, and their username. This data is then passed to the html template to be displayed in the post previews. For example, in line 20, post[3] is called in the html using Jinja to display the title of the post. Similar techniques are used throughout the project to retrieve relevant information and pass it to the html template, allowing for dynamic content to be displayed on the webpage.
 
 
-### Saving uploaded image files, retrieving and displaying them on the webpage [^5]
-So that users can customize their profile picture and add images to their posts, I created a way for users to upload images onto the website. An example is in the template `newpost.html`, alongside the `POST` method for the endpoint `new_post` in `app.py`:
+### Saving uploaded image files, retrieving and displaying them on the webpage
+So that users can customize their profile picture and add images to their posts, I created a way for users to upload images onto the website. [^5] An example is in the template `newpost.html`, alongside the `POST` method for the endpoint `new_post` in `app.py`:
 
 ```html
 <div class="new_post">
@@ -260,8 +260,8 @@ In the next line, if `file` is defined, the current timestamp, retrieved using t
 The file is then saved to the directory specified in the app as `['UPLOAD_FOLDER']` using the `save` method. By joining the path of the destination directory and the filename, the image is effectively saved in the directory. Finally, a sqlite query is run to insert the new post into the database, which includes the filename of the image that it was saved as so that it can be retrieved using the endpoints defined earlier.
 
 
-### Sending an email to relevant users when a new post is created or a  post is updated [^6]
-A system to send emails to users to inform users of updates was attempted to be implemented. First, there is a need to configure the mail provider in `app.py`. Some placeholder values are placed in the code below:
+### Sending an email to relevant users when a new post is created or a  post is updated 
+A system to send emails to users to inform users of updates was attempted to be implemented. [^6] First, there is a need to configure the mail provider in `app.py`. Some placeholder values are placed in the code below:
 
 ```python
 from flask_mail import Mail, Message
