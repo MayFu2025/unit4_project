@@ -1,5 +1,5 @@
 # Project Unit 4: Reddit Clone
-## Brief Description of Task
+## Success Criteria
 1. A login/registration system, hashed of course.
 2. A posting system to EDIT/CREATE/DELETE comments.
 3. A system to add/remove likes.
@@ -31,18 +31,18 @@
 - hashlib
 
 ### Other tools and frameworks
-- ChatGPT
-  - ChatGPT was used to reduce the time spent on populating the database with some examples content such as posts and category descriptions. An example is below:
+[ChatGPT:](https://chatgpt.com/) ChatGPT was used to reduce the time spent on populating the database with some examples content such as posts and category descriptions. An example is below:
 
 ![](assets_for_md/chatgpt_example.png)
 **Fig. 1** *Example of ChatGPT being used to generate a description for a category*
 
-- Cirrus
-  - Cirrus was used as a CSS framework for the product. Using a CSS framework allows for more consistency in the design of the product, increasing the usability of the product. 
+
+**[Cirrus:](https://www.cirrus-ui.com/)**
+Cirrus was used as a CSS framework for the product. Using a CSS framework allows for more consistency in the design of the product, increasing the usability of the product. 
 
 ### Development
-### Use of `{% block content %}` and `{% extends 'base.html' %}` in Jinja2
-The use of `{% block content %}` and `{% extends 'base.html' %}` in Jinja2 allows for variables created in other html files to be used in the base template file. This is useful as it reduces repetition by allowing for some html code to be reused in several pages.
+### Use of `{% block content %}` and `{% extends 'base.html' %}` from Django [^1]
+The use of `{% block content %}` and `{% extends 'base.html' %}` from Django allows for variables created in other html files to be used in the base template file. This is useful as it reduces repetition by allowing for some html code to be reused in several pages.
 
 When creating a navigation menu that was intended to be used on multiple pages, I initially had the same html code for the navigation bar on each template. Hence, to reduce redundant code, I used this technique so that the html for the navigation bar only needed to be written once.
 
@@ -122,7 +122,8 @@ The end result looks like this:
 *Fig.2* **Example of the navigation bar on the home page through the use of block content and extend**
 
 
-#### Use of Jinja operators and expressions to create dynamic content 
+#### Use of Jinja operators and expressions to create dynamic content [^2] [^3] [^4]
+
 In making the product, I pass variables from Python code in `app.py` when rendering HTML templates to create dynamic content customized to the user. An example of where this happens is in `category.html`:
 
 ```html
@@ -194,7 +195,7 @@ def get_all_posts(db: object, choice:str, ids: list[int]):
 This function effectively returns a list of lists, where each inner list contains (in order) the post id, date posted, comment count, post title, filename of post attachment, the id of the category the post belongs to, the category name, the author user id, and their username. This data is then passed to the html template to be displayed in the post previews. For example, in line 20, post[3] is called in the html using Jinja to display the title of the post. Similar techniques are used throughout the project to retrieve relevant information and pass it to the html template, allowing for dynamic content to be displayed on the webpage.
 
 
-### Saving uploaded image files, retrieving and displaying them on the webpage
+### Saving uploaded image files, retrieving and displaying them on the webpage [^5]
 So that users can customize their profile picture and add images to their posts, I created a way for users to upload images onto the website. An example is in the template `newpost.html`, alongside the `POST` method for the endpoint `new_post` in `app.py`:
 
 ```html
@@ -259,7 +260,7 @@ In the next line, if `file` is defined, the current timestamp, retrieved using t
 The file is then saved to the directory specified in the app as `['UPLOAD_FOLDER']` using the `save` method. By joining the path of the destination directory and the filename, the image is effectively saved in the directory. Finally, a sqlite query is run to insert the new post into the database, which includes the filename of the image that it was saved as so that it can be retrieved using the endpoints defined earlier.
 
 
-### Sending an email to relevant users when a new post is created or a  post is updated
+### Sending an email to relevant users when a new post is created or a  post is updated [^6]
 A system to send emails to users to inform users of updates was attempted to be implemented. First, there is a need to configure the mail provider in `app.py`. Some placeholder values are placed in the code below:
 
 ```python
@@ -341,8 +342,7 @@ The video can be found under the name "Project 4- Reddit Clone.mp4" in this Goog
 https://drive.google.com/drive/folders/1tMNTtgjcs2QFEaba9YF4Wc9Ikm9p6jiU?usp=drive_link
 
 ## Criteria E: Evaluation
-### Self-evaluation
-
+ As displayed in criteria D, my product meets all the required success criteria, with the exception of sending an email.
 ### Client Feedback
 ![](assets_for_md/client_email.png)
 *Fig. 3* **Email from client with feedback on the product**
@@ -367,6 +367,23 @@ To summarive on the points of improvement in terms of user experience, the clien
 - Being able to search for posts and categories.
 - Using different colors for different content to increase contrast and highlight important information, for more intuitive access.
 
-### Advisor Feedback
 
-### Summary of Strengths, Weaknesses, and Future Improvements
+### Other weaknesses and their improvements
+
+Some weaknesses include the structure of my database in storing a user's following posts, as explained in criteria C. This may be improved by utlizing a one-to-one table that links the user_id to only one specific user_id, category_id, or post_id. This will also make it much simpler to toggle between followed and unfollowing status, as this can be done in one `DELETE` or `INSERT` query. Searching for the number of saved times/follwers will also be easier this way, by using `SELECT count(*)` can be used in a query whereas with the current structure, there is a need to locate if a certain id is stored in a column of a certain row, and then totalled together for the amount of times it appears in the entire table.
+
+Another potential improvement is to reduce repetition in components besides the navigation bar that were repeated across multiple posts. For  example, this specific way of displaying posts were repeated in `home.html`, `category.html`, and `profile.html`.
+
+![](assets_for_md/post_example.png)
+*Fig. 4* **The component I designed using Cirrus that was repeated to display posts**
+
+
+It may be possible for child template of the navigation bar template to be a post display template, and a child template extends on this file to add the relevant data to the post display. However, this needs to be tested, to see if it is actually possible. If this is not possible, it may also be possible to create a CSS class for a component such as this, making sub-classes such as it is done in Cirrus to label the individual content that goes on the component.
+
+
+[^1]: Django, “The Django template language.” Django documentation, https://docs.djangoproject.com/en/5.0/ref/templates/language/. 
+[^2]: Bloomreach. “Basic Syntax of Jinja.” Bloomreach Documentation, https://documentation.bloomreach.com/engagement/docs/jinja-syntax.   
+[^3]: Bloomreach. “Jinja Data Structures.” Bloomreach Documentation, https://documentation.bloomreach.com/engagement/docs/datastructures.   
+[^4]: Bloomreach. “Jinja Filters.” Bloomreach Documentation, https://documentation.bloomreach.com/engagement/docs/filters.   
+[^5]: Mozilla. "<input type="file">." mdn web docs, https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file.   
+[^6]: Djuric, Malek. “How to Send Emails in Flask using SMTP or API.” Mailtrap, 12 April 2024, https://mailtrap.io/blog/flask-email-sending/#Send-emails-in-Flask-using-SMTP.
