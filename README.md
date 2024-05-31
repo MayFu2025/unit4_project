@@ -123,7 +123,75 @@ The end result looks like this:
 
 
 #### Use of Jinja operators and expressions to create dynamic content 
-In making the product, I pass variables from Python code in `app.py` when rendering HTML templates to create dynamic content customized to the user. For example, in
+In making the product, I pass variables from Python code in `app.py` when rendering HTML templates to create dynamic content customized to the user. An example of where this happens is in `category.html`:
+
+```html
+{% block content %}
+    OMITTED FOR DEMONSTRATION
+
+    <div class="p-1">
+        <h3 class="uppercase">Latest Posts from {{ details[1] }}</h3>
+        {% if posts | length == 0 %}  <!--If there are no posts in the category-->
+            <p>No posts yet! Why don't you be the first?</p>
+        {% endif %}
+        {% for post in posts %}
+            <div class="frame u-shadow-md u-border-1 border-light bg-light"> <!--Each Post Preview-->
+                <div class="row">
+                    <div class="col-5">
+                        {% if post[4] != "None" %} <!--If the post image is not undefined-->
+                            <img style="width:100%;height:100%" src="/uploads/{{ post[4] }}" alt="Post Image"> <!--Retrieve post image-->
+                        {% else %}
+                            <img style="width:100%;height:100%" src="/default_img.png" alt="Default Post Image"> <!--Retrieve a default image-->
+                        {% endif %}
+                    </div>
+                    <div class="col-7">
+                        <div class="space"></div>
+                        <a class="u u-LR" href="{{url_for('get_post', post_id=post[0])}}"><h3>{{ post[3] }}</h3></a>
+                        <a class="u u-LR" href="{{url_for('get_category', cat_id=post[5])}}"><h6>{{ post[6] }}</h6></a> <!--Post Category-->
+                        <p>Posted by <a class="u u-LR" href="{{ url_for('get_profile',user_id=post[7])}}">{{ post[8] }}</a> on {{ post[1] }}</p> 
+                        <p>{{ post[2] }} comments</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space"></div>
+        {% endfor %}
+    </div>
+{% endblock %}
+```
+For example, in line 5 of the above codeblock, I use an if statement and the Jinja filter `length` to create two possible outcomes on how the page will look like. Having such conditions to show certain components when the condition is met reduces the need to create multiple similar templates for different scenarios, effectively reducing redundant code. Furthermore, providing specific messages to known conditions can help guide the user and make the website more usable, as the developer can provide feedback to the user on what to do next in these expected scenarios.
+
+Using jinja variables also helps increase connectivity between the pages of my website. For example, in lines 20, 21, and 22, I use a jinja block to use the Flask `url_for` function and pass the correct `post_id`, `category_id`, and `user_id` values to the respective endpoints. This allows me to create a hyperlink to the post, category, and user pages from this post preview, allowing users to easily navigate between related and similar pages that they may be likely to visit next.
+
+The variables used in these Jinja blocks are passed through when rendering the template in the `app.py` file. Below is an example of how the variables are passed in the `get_category` endpoint:
+
+```python
+@app.route('/categories/<int:cat_id>')  # Show all posts in a category
+def get_category(cat_id):
+    user_id = check_session(session)
+    categories= retrieve_following('categories', db, user_id)
+    details = db.search(f"SELECT * FROM categories WHERE id={cat_id}", False)
+    posts= get_all_posts(db, choice="categories", ids=[cat_id]))
+    return render_template('category.html', user_id=user_id, categories=categories, details=details, posts=posts)
+```
+In line 8 of the html codeblock mentioned previously, I start a for loop that loops the variable `posts` to create multiple similar `divs` that display a preview of the post. By decapsulating various post information stored in the variabe `posts` and adding it to html content using Jinja, unique post displays can be created for each post in the category. The function `get_all_posts`, which retrieves the data for the variable `posts` is defined in `library.py` as follows:
+
+```python
+def get_all_posts(db: object, choice:str, ids: list[int]):
+    """Returns all posts that belong to the requested categories given as a list of either category, post, or user ids, latest posts first"""
+    if len(ids) != 0:
+        choices = {'categories': 'category_id',
+                   'posts': 'posts.id',
+                   'users': 'user_id'}
+        query = "SELECT posts.id, posts.date, posts.comment_count, posts.title, posts.attachment, categories.id, categories.name, users.id, users.uname FROM posts INNER JOIN categories ON posts.category_id = categories.id INNER JOIN users ON posts.user_id = users.id WHERE "
+        for id in ids:
+            query += f"{choices[choice]} = " + str(id) + " OR "
+        query = query[:-3] + "ORDER BY date DESC" # Remove the last OR and add ORDER BY date DESC
+        return db.search(query, multiple=True)
+    else:
+        return []
+```
+
+This function effectively returns a list of lists, where each inner list contains (in order) the post id, date posted, comment count, post title, filename of post attachment, the id of the category the post belongs to, the category name, the author user id, and their username. This data is then passed to the html template to be displayed in the post previews. For example, in line 20, post[3] is called in the html using Jinja to display the title of the post. Similar techniques are used throughout the project to retrieve relevant information and pass it to the html template, allowing for dynamic content to be displayed on the webpage.
 
 
 ### Saving uploaded image files, retrieving and displaying them on the webpage
@@ -191,7 +259,79 @@ In the next line, if `file` is defined, the current timestamp, retrieved using t
 The file is then saved to the directory specified in the app as `['UPLOAD_FOLDER']` using the `save` method. By joining the path of the destination directory and the filename, the image is effectively saved in the directory. Finally, a sqlite query is run to insert the new post into the database, which includes the filename of the image that it was saved as so that it can be retrieved using the endpoints defined earlier.
 
 
+### Sending an email to relevant users when a new post is created or a  post is updated
+A system to send emails to users to inform users of updates was attempted to be implemented. First, there is a need to configure the mail provider in `app.py`. Some placeholder values are placed in the code below:
 
+```python
+from flask_mail import Mail, Message
+
+
+# Only for Demonstration, as smtp server is not available
+app.config['MAIL_SERVER']= 'emailserver.com'
+app.config['MAIL_PORT'] = 123
+app.config['MAIL_USERNAME'] = 'example@domain.com'
+app.config['MAIL_PASSWORD'] = '*******'
+app.config['MAIL_USE_TLS'] = True
+mail = Mail(app)
+```
+The defined values are all attributes that need to be set to configure the mail server. If this is done correctly (which couldn't be done as I don't have access to an SMTP server that allows for the sending of emails from a web application), the Flask-Mail extension can be used. The Flask-Mail extension allows for the sending of emails from the Flask application.
+
+I then defined functions to retrieve the email addresses of possible recipients of the email. `recipients_from_post` and `recipients_from_category` are functions that return a list of email addresses of users who have interacted with a given post and users who follow a given category respectively. These functions are defined in `library.py`:
+```python
+def recipients_from_post(db:object, post_id:int)->list[str]:
+    """Returns a list of email addresses of users who have interacted with a given post."""
+    ids = []
+    # Get the author of the post
+    ids.append(db.search(f"SELECT user_id FROM posts WHERE id = {post_id}", multiple=False))
+    # Get the users who have commented on the post
+    commenters = db.search(f"SELECT user_id FROM comments WHERE post_id = {post_id}", multiple=True)
+    for id in commenters:
+        if id not in ids:
+            ids.append(id)
+    # Get the users who have saved the post
+    savers = db.search(f"SELECT user_id FROM users WHERE (saved_posts like '%,{post_id}') or (saved_posts like '{post_id},%') or (saved_posts like '%,{post_id},%') or (saved_posts='{post_id}')", multiple=True)[0]
+    for id in savers:
+        if id not in ids:
+            ids.append(id)
+
+    emails = []
+
+    for u_id in ids:
+        emails.append(db.search(f"SELECT email FROM users WHERE id = {u_id[0]}", multiple=False)[0])
+
+    return emails
+
+def recipients_from_category(db:object, cat_id:int)->list[str]:
+    """Returns a list of email addresses of users who follow a given category."""
+    emails = []
+    ids = db.search(f"SELECT id FROM users WHERE (saved_cats like '%,{cat_id}') or (saved_cats like '{cat_id},%') or (saved_cats like '%,{cat_id},%') or (saved_cats='{cat_id}')", multiple=True)
+
+    for u_id in ids:
+        emails.append(db.search(f'SELECT email FROM users WHERE id = {u_id[0]}', multiple=False)[0])
+
+    return emails
+```
+
+In both functions, a list of user ids is first retrieved using a search query. Whereas it is easy to retrieve the users who have posted a post or comment, it is more difficult to find the users who have saved a given post or follow a category. This is due to the structure of my database tables, as ids of posts, categories, and users followed by a given user are put together into one comma-separated string such as "1,2,3". This reflects a weakness in the organization of my program, as individual relationships between a user and a post, category, or another user are not saved, but rather grouped by the user in a form that it must be retrieved, parsed, and queried to find the individual relationships. However, I used logical thinking to identify that when ids are saved in this format, if looking for a specific value, there are only four possible ways in which it can be saved: at the start ('id,') of the string, at the end (',id'), in the middle (',id,'), or alone ('id'). Hence, I used the `like` operator and the wildcard `%` in the query to check for every single possibility, and if there are any matches, the user id is appended to the list of ids. A for loop to loop the resultant ids is used to retrieve the email addresses of the users from the database and append them to the final list of emails, which is returned.
+
+Using these functions, I can now pass the email addresses of the recipients into the email. To send a email, I defined a function `send_email` in `library.py`:
+
+```python
+def send_email(mail:Mail, recipients:list[str], subject:str, content:str, sender:str='example@domain.com'):
+    msg = Message(subject=subject, sender=("UWC ISAK Clubhouse", sender), recipients=recipients)
+    msg.body = content
+
+    print(f"""Email to be sent:
+    Subject: {subject}
+    Sender: {sender}
+    Recipients: {recipients}""") # For demonstration purposes
+
+    mail.send(msg) # Will not work as the email server is not set up
+    return "Email Sent"
+```
+The function takes the Flask-Mail object, the sender address, a list of recipients which can be retrieved from one of the functions defined previously, the subject of the email, and the content of the email, and the sender of the email as arguments. The variable `msg` which is a object of the class `Flask-Message` contains the details of the mail aside the body, to be sent. The `body` attribute of the message is set to the `content` argument. The email is then sent using the `send` method of the `Mail` object. However, as the email server is not set up, instead, I chose to print what the email would approximately look like. The function returns a string "Email Sent" to indicate that the email has been sent.
+
+This function is then used when the user has been redirected after a successful `POST` method in the `get_post` endpoint or `new_comment` endpoint, which add a new post or comment to the database.
 
 
 
@@ -221,13 +361,11 @@ As can be seen in *Fig. 3*, the client responded that the product for the most p
 **2. Thoughts on the Usability, Accessibility and Design of the Product?:**
 
 
-Again, as can be seen in *Fig. 3*, the client 
+Again, as can be seen in *Fig. 3*, the client responded that overall, the clarity and organization of the UI made using the product intuitive and appealing. A specific strength mentioned was the use of links within text, and an underline animation upon hovering over these links. The underline animation allowed the client to know when the text was clickable. However on a similar note, a point of improvement mentioned was the lack of contrast in colors used for components. This, contrary to the use of links, made it difficult to differentiate important information from the rest of the content. Furthermore, it was identified that while the navigation bar and use of links made going between various pages easy, a search bar can be implemented for the future when the database becomes more populated with posts, categories, and users.
 
-
+To summarive on the points of improvement in terms of user experience, the client suggested:
 - Being able to search for posts and categories.
 - Using different colors for different content to increase contrast and highlight important information, for more intuitive access.
-
-2. What are the strengths of the product:
 
 ### Advisor Feedback
 
