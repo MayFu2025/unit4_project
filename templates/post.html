@@ -8,17 +8,18 @@
         <h2 class="uppercase">"{{ post[3] }}"</h2>
         <h4 >Posted by <a class="u u-LR" href="{{ url_for('get_profile',user_id=post[8])}}">{{ post[9] }}</a> on {{ post[1] }}</h4>
         <h5>Category: <a class="u u-LR" href="{{url_for('get_category', cat_id=post[6])}}">{{ post[7] }}</a></h5>
-
+        <div class="space"></div>
         {% if post[8] != user_id %}<a href="{{ url_for('save_post', post_id=post[0]) }}"><button>{% if post[0] in following[0] %}Unlike{% else %}Like{% endif %}</button></a>{% endif %}
-
+        <div class="space"></div>
         <p id="post-content">{{ post[4] }}</p>
         {% if post[5] != "None" %} <!--If there is an image attachment-->
+            <div class="space"></div>
             <img src="/uploads/{{ post[5] }}" alt="Post Image">
         {% endif %}
 
-        <div class="space ..."></div>
 
         {% if post[8] == user_id %}
+            <div class="space"></div>
             <div>
                 <button><a href="{{ url_for('edit_post', post_id=post[0]) }}">Edit Post</a></button>
                 <button><a href="{{ url_for('delete_post', post_id=post[0]) }}">Delete Post</a></button>

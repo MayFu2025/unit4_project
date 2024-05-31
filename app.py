@@ -74,12 +74,12 @@ def register():
         results = db.search(f"SELECT * FROM users WHERE uname = '{uname}' or email = '{email}'", multiple=True)
         print(results)
         if len(results) != 0:
-            print('Username already taken, or email already in use')
-            return 'Username already taken, or email already in use'  # Redirect to somewhere
+            message = 'Username already taken, or email already in use'
+            return redirect(url_for('register'))
         else:  # Check that passwords match
             if pword != check_pword:
-                print('Passwords do not match')
-                return 'Passwords do not match'
+                message = 'Passwords do not match'
+                return redirect(url_for('register'))
             else:
                 # Hash password and insert into database
                 hashed_pword = make_hash(pword)
@@ -314,7 +314,7 @@ def edit_comment(post_id, comment_id):
     if check_session(session) is None:
         redirect(url_for('login'))
     elif check_session(session) != db.search(f"SELECT user_id FROM comments WHERE id = {comment_id}", multiple=False)[0]:
-        return 'You do not have permission to edit this comment' #TODO: we need a proper popup or page for this
+        return 'You do not have permission to edit this comment'
     else:
         if request.method == 'POST':
             new_comment = request.form.get('new_comment')
@@ -328,7 +328,9 @@ def edit_comment(post_id, comment_id):
                                                         FROM comments INNER JOIN users ON comments.user_id = users.id INNER JOIN posts ON comments.post_id = posts.id
                                                         WHERE posts.id = {post_id}""", multiple=True)
             comment_content = db.search(f"SELECT content FROM comments WHERE id = {comment_id}", multiple=False)[0]
-            return render_template('post.html', user_id=check_session(session), categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, editing_comment=comment_content)
+
+            following = retrieve_following('posts', db, session['user_id'])
+            return render_template('post.html', user_id= session['user_id'], categories=retrieve_following('categories', db, session['user_id']), post=post, comments=comments, following=following, editing_comment=comment_content)
 
 
 @app.route(
@@ -351,6 +353,8 @@ def get_img(filename):
 @app.route('/<filename>')
 def get_default_img(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'static'), filename)
+
+
 
 if __name__ == '__main__':
     app.run()

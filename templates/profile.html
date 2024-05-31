@@ -1,6 +1,6 @@
 {% extends "navbar.html" %}
 
-{% block title %}{{ username }}'s Profile{% endblock %}
+{% block title %}{{ user[1] }}'s Profile{% endblock %}
 
 {% block content %}
     <div class="space"></div>
@@ -84,7 +84,7 @@
 
         <div class="p-1">
             <h3>Saved Posts</h3>
-            {% for post in posts %}
+            {% for post in saved_posts %}
                 <div class="frame u-shadow-md u-border-1 border-light bg-light"> <!--Post Preview-->
                     <div class="row">
                         <div class="col-5">

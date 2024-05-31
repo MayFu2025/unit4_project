@@ -11,6 +11,9 @@
 
 <body>
     <div class="logins">
+        {% if message != None %}
+            <p class="text-primary">{{ message }}</p>
+        {% endif %}
         <h1>Welcome to PLATFORM</h1>
         <h2>Create a New Account to Continue</h2>
         <form method="post">
