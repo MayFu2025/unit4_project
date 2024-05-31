@@ -1,4 +1,7 @@
-# Project Unit 4: Reddit Clone
+# Unit 4: Reddit Clone
+![](assets_for_md/reddit_profile.gif)
+<sub>"Reddit Profile GIF by Loco2005, *https://tenor.com/view/reddit-profile-gif-21012312*"</sub>
+
 ## Success Criteria
 1. A login/registration system, hashed of course.
 2. A posting system to EDIT/CREATE/DELETE comments.
