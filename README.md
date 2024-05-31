@@ -196,12 +196,38 @@ The file is then saved to the directory specified in the app as `['UPLOAD_FOLDER
 
 
 ## Criteria D: Functionality
-### Video Demonstration of Product
+### Video of proposed solution
+The video can be found under the name "Project 4- Reddit Clone.mp4" in this Google Drive Folder: 
+https://drive.google.com/drive/folders/1tMNTtgjcs2QFEaba9YF4Wc9Ikm9p6jiU?usp=drive_link
 
 ## Criteria E: Evaluation
 ### Self-evaluation
 
 ### Client Feedback
+![](assets_for_md/client_email.png)
+*Fig. 3* **Email from client with feedback on the product**
+
+To evaluate my product, I reached out to a peer that was identified as  one of the intended clients (a student of the same school that participates in various clubs). I gave them a chance to watch my video of the proposed solution, test the product themselves, and I asked them to answer the following questions with consideration to my product. A summary of their response to each question is as follows:
+
+**1. Does the product meet the success criteria?:**
+
+
+As can be seen in *Fig. 3*, the client responded that the product for the most part met the success criteria, but there was some room for improvement. The only success criteria that was not quite met was #7, sending the email. However, they were able to confirm that they can see that the program required to send the email was present in the code. Some points of improvement mentioned in relation to the functions in the success criteria are:
+- Filters when registering new users to improve security, such as by requiring a certain number of characters in a password or requiring both letters and numbers.
+- Being able to like posts without having to go into the post itself.
+- Being able to see the number of followers a user has, as well as more details in profile pages such as a user's bio.
+- Being able to preview an uploaded photo before submitting a form when creating a post, category, or updating a profile picture.
+
+**2. Thoughts on the Usability, Accessibility and Design of the Product?:**
+
+
+Again, as can be seen in *Fig. 3*, the client 
+
+
+- Being able to search for posts and categories.
+- Using different colors for different content to increase contrast and highlight important information, for more intuitive access.
+
+2. What are the strengths of the product:
 
 ### Advisor Feedback
 
